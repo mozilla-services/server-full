@@ -1,40 +1,19 @@
 VIRTUALENV = virtualenv
 BIN = bin
+HG = hg
 
-.PHONY: all build check coverage test mysqltest redisqltest doc alltest
+.PHONY: all build 
 
-all:	build test
+all:	build
 
+# XXX we could switch to zc.buildout here
 build:
 	$(VIRTUALENV) --no-site-packages .
-	$(BIN)/easy_install nose
-	$(BIN)/easy_install coverage
-	$(BIN)/easy_install flake8
+	cd deps/sync-core
 	$(BIN)/python setup.py develop
-
-check:
-	rm -rf syncserver/templates/*.py
-	$(BIN)/flake8 syncserver
-
-coverage:
-	$(BIN)/nosetests -s --cover-html --cover-html-dir=html --with-coverage --cover-package=syncserver syncserver
-	WEAVE_TESTFILE=mysql $(BIN)/nosetests -s --cover-html --cover-html-dir=html --with-coverage --cover-package=syncserver syncserver 
-
-test:
-	$(BIN)/nosetests -s syncserver
-
-mysqltest:
-	WEAVE_TESTFILE=mysql $(BIN)/nosetests -s syncserver
-
-redisqltest:
-	WEAVE_TESTFILE=redisql $(BIN)/nosetests -s syncserver
-
-ldaptest:
-	WEAVE_TESTFILE=ldap $(BIN)/nosetests -s syncserver
-
-
-alltest: test mysqltest redisqltest ldaptest
-
-doc:
-	$(BIN)/sphinx-build doc/source/ doc/build/
-
+	cd ../sync-reg
+	$(BIN)/python setup.py develop
+	cd ../sync-storage
+	$(BIN)/python setup.py develop
+	cd ../..
+	$(BIN)/python setup.py develop

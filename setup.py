@@ -34,13 +34,9 @@
 #
 # ***** END LICENSE BLOCK *****
 from setuptools import setup, find_packages
+import syncserver
 
-install_requires = ['SQLALchemy', 'PasteDeploy', 'WebOb', 'Mako', 'WebTest',
-                    'recaptcha-client', 'Routes', 'simplejson', 'distribute',
-                    'repoze.profile']
-
-extra_requires = {'full': ['MySQL-python', 'redis', 'python-ldap']}
-
+install_requires = ['SyncStorage', 'SyncReg', 'SyncCore']
 
 entry_points = """
 [paste.app_factory]
@@ -50,5 +46,5 @@ main = syncserver.wsgiapp:make_app
 main = paste.script.appinstall:Installer
 """
 
-setup(name='SyncServer', version=0.1, packages=find_packages(),
+setup(name='SyncServer', version=0.1, py_modules=syncserver,
       install_requires=install_requires, entry_points=entry_points)

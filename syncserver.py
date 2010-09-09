@@ -34,17 +34,17 @@
 #
 # ***** END LICENSE BLOCK *****
 """
-Basic tests to verify that the dispatching mechanism works.
+Application entry point.
 """
-from syncserver.tests.functional import support
+from synccore.baseapp import set_app
 
+# XXX alternatively we should use Paste composite feature here
+from syncreg.wsgiapp import urls as reg_urls, controllers as reg_controllers
+from syncstorage.wsgiapp import (StorageServerApp,
+                                 controllers as storage_controllers,
+                                 urls as storage_urls)
 
-class TestUser(support.TestWsgiApp):
+urls = reg_urls + storage_urls
+reg_controllers.update(storage_controllers)
 
-    def test_file(self):
-        # make sure we can get files
-        self.app.get('/media/nothere', status=404)
-
-        res = self.app.get('/media/forgot_password.css')
-        self.assertEquals(res.headers['Content-Type'],
-                          'text/html; charset=UTF-8')
+make_app = set_app(urls, controllers, klass=StorageServerApp)
