@@ -47,4 +47,4 @@ from syncstorage.wsgiapp import (StorageServerApp,
 urls = reg_urls + storage_urls
 reg_controllers.update(storage_controllers)
 
-make_app = set_app(urls, controllers, klass=StorageServerApp)
+make_app = set_app(urls, reg_controllers, klass=StorageServerApp)

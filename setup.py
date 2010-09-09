@@ -33,18 +33,17 @@
 # the terms of any one of the MPL, the GPL or the LGPL.
 #
 # ***** END LICENSE BLOCK *****
-from setuptools import setup, find_packages
-import syncserver
+from setuptools import setup
 
 install_requires = ['SyncStorage', 'SyncReg', 'SyncCore']
 
 entry_points = """
 [paste.app_factory]
-main = syncserver.wsgiapp:make_app
+main = syncserver:make_app
 
 [paste.app_install]
 main = paste.script.appinstall:Installer
 """
 
-setup(name='SyncServer', version=0.1, py_modules=syncserver,
+setup(name='SyncServer', version=0.1, py_modules=['syncserver.py'],
       install_requires=install_requires, entry_points=entry_points)
