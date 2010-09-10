@@ -8,4 +8,4 @@ all:	build
 # XXX we could switch to zc.buildout here
 build:
 	$(VIRTUALENV) --no-site-packages .
-	$(BIN)/python build.py
+	$(PYTHON) build.py
