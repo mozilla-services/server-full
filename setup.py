@@ -45,5 +45,5 @@ main = syncserver:make_app
 main = paste.script.appinstall:Installer
 """
 
-setup(name='SyncServer', version=0.1, py_modules=['syncserver.py'],
+setup(name='SyncServer', version=0.1, packages=['syncserver'],
       install_requires=install_requires, entry_points=entry_points)
