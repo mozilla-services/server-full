@@ -49,7 +49,7 @@ coverage:
 
 hudson-coverage:
 	rm -rf coverage.xml
-	- $(COVERAGE) run --include=syncreg,synccore,syncstorage $(NOSE) $(COVEROPTS) $(TESTS); $(COVERAGE) xml
+	- $(COVERAGE) run --source=syncreg,synccore,syncstorage $(NOSE) $(TESTS); $(COVERAGE) xml
 
 lint:
 	rm -rf pylint.txt
