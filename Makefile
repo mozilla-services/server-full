@@ -23,7 +23,6 @@ build_extras:
 	$(EZ) coverage
 	$(EZ) redis
 	$(EZ) flake8
-	$(EZ) python-ldap
 	$(EZ) mysql-python
 	$(EZ) pylint
 	$(EZ) pygments
