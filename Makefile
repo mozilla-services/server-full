@@ -17,12 +17,16 @@ build:
 build_extras:
 	$(EZ) nose
 	$(EZ) coverage
+	$(EZ) redis
 
 mysqltest:
 	WEAVE_TESTFILE=mysql $(NOSE) $(TESTS)
 
 ldapltest:
 	WEAVE_TESTFILE=ldap $(NOSE) $(TESTS)
+
+redistest:
+	WEAVE_TESTFILE=redisql $(NOSE) $(TESTS)
 
 test:
 	$(NOSE) $(TESTS)
@@ -31,4 +35,5 @@ coverage:
 	rm -rf html
 	- WEAVE_TESTFILE=mysql $(NOSE) $(COVEROPTS) $(TESTS)
 	- WEAVE_TESTFILE=ldap $(NOSE) $(COVEROPTS) $(TESTS)
+	- WEAVE_TESTFILE=redisql $(NOSE) $(COVEROPTS) $(TESTS)
 	- $(NOSE) $(COVEROPTS) $(TESTS)
