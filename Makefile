@@ -48,9 +48,11 @@ coverage:
 	- $(NOSE) $(COVEROPTS) $(TESTS)
 
 hudson-coverage:
+	rm -rf coverage.xml
 	- $(COVERAGE) run --include=syncreg,synccore,syncstorage $(NOSE) $(COVEROPTS) $(TESTS); $(COVERAGE) xml
 
 lint:
+	rm -rf pylint.txt
 	- $(PYLINT) -f parseable $(PKGS) > pylint.txt
 
 qa:
