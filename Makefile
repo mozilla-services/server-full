@@ -1,7 +1,7 @@
 VIRTUALENV = virtualenv
 PYTHON = bin/python
 EZ = bin/easy_install
-NOSE = bin/nosetests -s
+NOSE = bin/nosetests -s --with-xunit
 FLAKE8 = bin/flake8
 COVEROPTS = --cover-html --cover-html-dir=html --with-coverage --cover-package=synccore,syncreg,syncstorage
 TESTS = deps/sync-core/synccore/tests/ deps/sync-reg/syncreg/tests deps/sync-storage/syncstorage/tests
