@@ -2,10 +2,12 @@ VIRTUALENV = virtualenv
 PYTHON = bin/python
 EZ = bin/easy_install
 NOSE = bin/nosetests -s
+FLAKE8 = bin/flake8
 COVEROPTS = --cover-html --cover-html-dir=html --with-coverage --cover-package=synccore,syncreg,syncstorage
 TESTS = deps/sync-core/synccore/tests/ deps/sync-reg/syncreg/tests deps/sync-storage/syncstorage/tests
+PKGS = deps/sync-core/synccore deps/sync-reg/syncreg deps/sync-storage/syncstorage
 
-.PHONY: all build mysqltest ldaptest test coverage
+.PHONY: all build mysqltest ldaptest test coverage build_extras redistest
 
 all:	build
 
@@ -18,6 +20,7 @@ build_extras:
 	$(EZ) nose
 	$(EZ) coverage
 	$(EZ) redis
+	$(EZ) flake8
 
 mysqltest:
 	WEAVE_TESTFILE=mysql $(NOSE) $(TESTS)
@@ -37,3 +40,7 @@ coverage:
 	- WEAVE_TESTFILE=ldap $(NOSE) $(COVEROPTS) $(TESTS)
 	- WEAVE_TESTFILE=redisql $(NOSE) $(COVEROPTS) $(TESTS)
 	- $(NOSE) $(COVEROPTS) $(TESTS)
+
+qa:
+	rm -rf deps/sync-reg/syncreg/templates/*.py
+	$(FLAKE8) $(PKGS)
