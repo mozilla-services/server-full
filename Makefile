@@ -7,7 +7,7 @@ COVEROPTS = --cover-html --cover-html-dir=html --with-coverage --cover-package=s
 TESTS = deps/sync-core/synccore/tests/ deps/sync-reg/syncreg/tests deps/sync-storage/syncstorage/tests
 PKGS = deps/sync-core/synccore deps/sync-reg/syncreg deps/sync-storage/syncstorage
 
-.PHONY: all build mysqltest ldaptest test coverage build_extras redistest
+.PHONY: all build mysqltest ldaptest test coverage build_extras redistest qa oldtest
 
 all:	build
 
@@ -44,3 +44,6 @@ coverage:
 qa:
 	rm -rf deps/sync-reg/syncreg/templates/*.py
 	$(FLAKE8) $(PKGS)
+
+oldtest:
+	cd tests/functional; ../../bin/python run_server_tests.py
