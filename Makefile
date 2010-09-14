@@ -47,15 +47,15 @@ coverage:
 	- $(NOSE) $(COVEROPTS) $(TESTS)
 
 hudson-coverage:
-	rm -rf coverage.xml
+	rm -f coverage.xml
 	- $(COVERAGE) run --source=syncreg,synccore,syncstorage $(NOSE) $(TESTS); $(COVERAGE) xml
 
 lint:
-	rm -rf pylint.txt
+	rm -f pylint.txt
 	- $(PYLINT) -f parseable --rcfile=pylintrc $(PKGS) > pylint.txt
 
 qa:
-	rm -rf deps/sync-reg/syncreg/templates/*.py
+	rm -f deps/sync-reg/syncreg/templates/*.py
 	$(FLAKE8) $(PKGS)
 
 oldtest:
