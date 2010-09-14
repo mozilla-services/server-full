@@ -53,7 +53,7 @@ hudson-coverage:
 
 lint:
 	rm -rf pylint.txt
-	- $(PYLINT) -f parseable $(PKGS) > pylint.txt
+	- $(PYLINT) -f parseable --rcfile=pylintrc $(PKGS) > pylint.txt
 
 qa:
 	rm -rf deps/sync-reg/syncreg/templates/*.py
