@@ -21,6 +21,8 @@ build_extras:
 	$(EZ) coverage
 	$(EZ) redis
 	$(EZ) flake8
+	$(EZ) python-ldap
+	$(EZ) mysql-python
 
 mysqltest:
 	WEAVE_TESTFILE=mysql $(NOSE) $(TESTS)
