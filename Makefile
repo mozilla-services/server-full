@@ -7,8 +7,9 @@ COVEROPTS = --cover-html --cover-html-dir=html --with-coverage --cover-package=s
 TESTS = deps/sync-core/synccore/tests/ deps/sync-reg/syncreg/tests deps/sync-storage/syncstorage/tests
 PKGS = deps/sync-core/synccore deps/sync-reg/syncreg deps/sync-storage/syncstorage
 COVERAGE = bin/coverage
+PYLINT = bin/pylint
 
-.PHONY: all build mysqltest ldaptest test coverage build_extras redistest qa oldtest hudson-coverage
+.PHONY: all build mysqltest ldaptest test coverage build_extras redistest qa oldtest hudson-coverage lint
 
 all:	build
 
@@ -24,6 +25,8 @@ build_extras:
 	$(EZ) flake8
 	$(EZ) python-ldap
 	$(EZ) mysql-python
+	$(EZ) pylint
+	$(EZ) pygments
 
 mysqltest:
 	WEAVE_TESTFILE=mysql $(NOSE) $(TESTS)
@@ -46,6 +49,9 @@ coverage:
 
 hudson-coverage:
 	- $(COVERAGE) run --include=syncreg,synccore,syncstorage $(NOSE) $(COVEROPTS) $(TESTS); $(COVERAGE) xml
+
+lint:
+	- $(PYLINT) -f parseable $(PKGS) > pylint.txt
 
 qa:
 	rm -rf deps/sync-reg/syncreg/templates/*.py
