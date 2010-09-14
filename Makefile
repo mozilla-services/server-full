@@ -45,9 +45,7 @@ coverage:
 	- $(NOSE) $(COVEROPTS) $(TESTS)
 
 hudson-coverage:
-	rm -rf html
-	- $(COVERAGE) run $(NOSE) $(COVEROPTS) $(TESTS)
-	$(COVERAGE) xml
+	- $(COVERAGE) run --include=syncreg,synccore,syncstorage $(NOSE) $(COVEROPTS) $(TESTS); $(COVERAGE) xml
 
 qa:
 	rm -rf deps/sync-reg/syncreg/templates/*.py
