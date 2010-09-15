@@ -644,14 +644,23 @@ class TestStorage(unittest.TestCase):
             self.failUnless(str(e).find("HTTP Error 412: Precondition Failed") > 0, "Should have been an HTTP 412 error")
 
 
-    def skip_testQuota(self):
+    def testQuota(self):
         "testQuota: Storing an item should increase the quota usage for the user"
         userID, storageServer = self.createCaseUser()
-        q = weave.get_quota(storageServer, userID, self.password, withHost=test_config.HOST_NAME)
-        self.failUnlessEqual([0,None], q)
-        ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'sortindex':3, 'payload':'aPayload'}, withHost=test_config.HOST_NAME)
-        q = weave.get_quota(storageServer, userID, self.password, withHost=test_config.HOST_NAME)
-        self.failUnlessEqual([7,None], q, "If quotas are working, the quota should have been changed by an add call")
+        used, total = weave.get_quota(storageServer, userID, self.password, withHost=test_config.HOST_NAME)
+        self.failUnlessEqual(used, 0)
+
+        for i in range(10):
+            wbo =  {'id': '1234'+str(i), 'sortindex': 3, 'payload': 'a' * 500}
+
+            ts = weave.add_or_modify_item(storageServer, userID, self.password,
+                                          'coll', wbo, withHost=test_config.HOST_NAME)
+
+        used2, total2 = weave.get_quota(storageServer, userID, self.password, withHost=test_config.HOST_NAME)
+        self.assertEquals(total, total2)
+        self.assertTrue(used2 > used)
+        self.assertEquals(used2, 4)
+
         # And we also need to test add (and modify) multiple
 
     def testCollection_SameIDs(self):
