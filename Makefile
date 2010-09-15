@@ -59,4 +59,4 @@ qa:
 	$(FLAKE8) $(PKGS)
 
 oldtest:
-	cd tests/functional; ../../bin/python run_server_tests.py
+	$(PYTHON) tests/functional/run_server_tests.py
