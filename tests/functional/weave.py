@@ -248,7 +248,8 @@ def storage_http_op(method, userID, password, url, payload=None, asJSON=True, if
         except:
             pass
         # TODO process error code
-        raise WeaveException("Unable to communicate with Weave server: %s" % e)
+        raise WeaveException("Unable to communicate with Weave server: %s %s" % (e,
+            msg))
 
 
 def add_or_modify_item(storageServerURL, userID, password, collection, item, urlID=None, ifUnmodifiedSince=None, withHost=None):
