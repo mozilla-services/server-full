@@ -30,7 +30,7 @@ build_extras:
 mysqltest:
 	WEAVE_TESTFILE=mysql $(NOSE) $(TESTS)
 
-ldapltest:
+ldaptest:
 	WEAVE_TESTFILE=ldap $(NOSE) $(TESTS)
 
 redistest:
