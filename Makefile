@@ -48,6 +48,9 @@ coverage:
 	- $(NOSE) $(COVEROPTS) $(TESTS)
 
 hudson-coverage:
+	cd deps/sync-core; hg pull; hg up -C
+	cd deps/sync-reg; hg pull; hg up -C
+	cd deps/sync-storage; hg pull; hg up -C
 	rm -f coverage.xml
 	- $(COVERAGE) run --source=syncreg,synccore,syncstorage $(NOSE) $(TESTS); $(COVERAGE) xml
 
