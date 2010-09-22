@@ -26,6 +26,7 @@ build_extras:
 	$(EZ) mysql-python
 	$(EZ) pylint
 	$(EZ) pygments
+	$(EZ) python-memcached
 
 mysqltest:
 	WEAVE_TESTFILE=mysql $(NOSE) $(TESTS)
