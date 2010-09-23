@@ -9,7 +9,7 @@ PKGS = deps/sync-core/synccore deps/sync-reg/syncreg deps/sync-storage/syncstora
 COVERAGE = bin/coverage
 PYLINT = bin/pylint
 
-.PHONY: all build mysqltest ldaptest test coverage build_extras redistest qa oldtest hudson-coverage lint memcachedtest memcachedldaptest
+.PHONY: all build mysqltest ldaptest test coverage build_extras qa oldtest hudson-coverage lint memcachedtest memcachedldaptest
 
 all:	build
 
@@ -21,7 +21,6 @@ build:
 build_extras:
 	$(EZ) nose
 	$(EZ) coverage
-	$(EZ) redis
 	$(EZ) flake8
 	$(EZ) mysql-python
 	$(EZ) pylint
@@ -40,9 +39,6 @@ mysqltest:
 ldaptest:
 	WEAVE_TESTFILE=ldap $(NOSE) $(TESTS)
 
-redistest:
-	WEAVE_TESTFILE=redisql $(NOSE) $(TESTS)
-
 test:
 	$(NOSE) $(TESTS)
 
@@ -50,7 +46,6 @@ coverage:
 	rm -rf html
 	- WEAVE_TESTFILE=mysql $(NOSE) $(COVEROPTS) $(TESTS)
 	- WEAVE_TESTFILE=ldap $(NOSE) $(COVEROPTS) $(TESTS)
-	- WEAVE_TESTFILE=redisql $(NOSE) $(COVEROPTS) $(TESTS)
 	- $(NOSE) $(COVEROPTS) $(TESTS)
 
 hudson-coverage:
