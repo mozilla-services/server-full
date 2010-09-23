@@ -9,7 +9,7 @@ PKGS = deps/sync-core/synccore deps/sync-reg/syncreg deps/sync-storage/syncstora
 COVERAGE = bin/coverage
 PYLINT = bin/pylint
 
-.PHONY: all build mysqltest ldaptest test coverage build_extras redistest qa oldtest hudson-coverage lint
+.PHONY: all build mysqltest ldaptest test coverage build_extras redistest qa oldtest hudson-coverage lint memcachedtest memcachedldaptest
 
 all:	build
 
@@ -27,6 +27,12 @@ build_extras:
 	$(EZ) pylint
 	$(EZ) pygments
 	$(EZ) python-memcached
+
+memcachedtest:
+	WEAVE_TESTFILE=memcached $(NOSE) $(TESTS)
+
+memcachedldaptest:
+	WEAVE_TESTFILE=memcachedldap $(NOSE) $(TESTS)
 
 mysqltest:
 	WEAVE_TESTFILE=mysql $(NOSE) $(TESTS)
