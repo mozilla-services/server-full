@@ -38,6 +38,7 @@ import os
 import sys
 import site
 from logging.config import fileConfig
+from ConfigParser import NoSectionError
 
 # detecting if virtualenv was used in this dir
 _CURDIR = os.path.dirname(os.path.abspath(__file__))
@@ -62,8 +63,11 @@ sys.path[:] = saved
 os.environ['PYTHON_EGG_CACHE'] = '/tmp/python-eggs'
 
 # setting up logging
-ini_file = os.path.join(_CURDIR, 'development.ini')
-fileConfig(ini_file)
+ini_file = os.path.join(_CURDIR, 'tests_memcachedldap.ini')
+try:
+    fileConfig(ini_file)
+except NoSectionError:
+    pass
 
 # running the app using Paste
 from paste.deploy import loadapp
