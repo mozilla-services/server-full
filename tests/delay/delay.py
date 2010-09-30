@@ -1,19 +1,28 @@
-import random
+""" Simulates a heavy load
+"""
 import sys
 import time
 
 from twisted.internet import reactor
 from twisted.protocols import portforward
 
-MAX_DELAY =  15
-
+CURRENT = 0.
+MAX_DELAY = 2.
+GROWTH = .2
 
 class LoggingProxyServer(portforward.ProxyServer):
 
     def dataReceived(self, data):
-        delay = random.randint(0, MAX_DELAY)
-        print 'Delaying call for %d seconds' % delay
-        time.sleep(delay)
+        global CURRENT
+        global GROWTH
+
+        if CURRENT > MAX_DELAY:
+            GROWTH = -.2
+        elif CURRENT <= abs(GROWTH):
+            GROWTH = .2
+        CURRENT += GROWTH
+        print 'Delaying call for %.1fs' % CURRENT
+        time.sleep(CURRENT)
         portforward.ProxyServer.dataReceived(self, data)
 
 
@@ -25,7 +34,7 @@ if __name__ == '__main__':
     fwdserver = sys.argv[2]
     fwdport = int(sys.argv[3])
     fwd = LoggingProxyFactory(fwdserver, fwdport)
-    print('Forwarding from %s to %s:%s with random delays' % \
+    print('Forwarding from %s to %s:%s with delays' % \
             (port, fwdserver, fwdport))
     reactor.listenTCP(port, fwd)
     reactor.run()

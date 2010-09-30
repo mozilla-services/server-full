@@ -26,8 +26,7 @@ class SimpleTest(FunkLoadTestCase):
         print('Creating %d users with %d wbos each' % (self.vusers,
                                                        self.num_wbos))
         # let's create 2k users (captcha needs to be deactivated)
-        for i in range(self.vusers-1 -66):
-            i += 66
+        for i in range(self.vusers-1):
             sys.stdout.write('.')
             sys.stdout.flush()
             name = 'funkloaduser%d' % i

@@ -6,7 +6,7 @@ STORAGE_SCHEME = "http"
 STORAGE_SERVER = "localhost"
 
 HOST_NAME = None
-USERNAME = "weaveunittest_zyheovfslj"
+USERNAME = "weaveunittest_dljsxsnmen"
 PASSWORD = "mypassword"
 
-memcache = False
+memcache = True
