@@ -37,7 +37,7 @@ import os
 import sys
 
 CURDIR = os.path.dirname(__file__)
-REPO_ROOT = 'https://bitbucket.org/tarek/'
+REPO_ROOT = 'https://hg.mozilla.org/services/'
 
 def build_deps():
     """Will make sure dependencies are up-to-date"""
@@ -47,7 +47,7 @@ def build_deps():
         deps = os.path.abspath(os.path.join(CURDIR, 'deps'))
         if not os.path.exists(deps):
             os.mkdir(deps)
-        for dep in ('sync-core', 'sync-reg', 'sync-storage'):
+        for dep in ('server-core', 'server-reg', 'server-storage'):
             repo = REPO_ROOT + dep
             target = os.path.join(deps, dep)
             if os.path.exists(target):
