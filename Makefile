@@ -4,8 +4,8 @@ EZ = bin/easy_install
 NOSE = bin/nosetests -s --with-xunit
 FLAKE8 = bin/flake8
 COVEROPTS = --cover-html --cover-html-dir=html --with-coverage --cover-package=synccore,syncreg,syncstorage
-TESTS = deps/sync-core/synccore/tests/ deps/sync-reg/syncreg/tests deps/sync-storage/syncstorage/tests
-PKGS = deps/sync-core/synccore deps/sync-reg/syncreg deps/sync-storage/syncstorage
+TESTS = deps/server-core/synccore/tests/ deps/server-reg/syncreg/tests deps/server-storage/syncstorage/tests
+PKGS = deps/server-core/synccore deps/server-reg/syncreg deps/server-storage/syncstorage
 COVERAGE = bin/coverage
 PYLINT = bin/pylint
 
@@ -49,9 +49,9 @@ coverage:
 	- $(NOSE) $(COVEROPTS) $(TESTS)
 
 hudson-coverage:
-	cd deps/sync-core; hg pull; hg up -C
-	cd deps/sync-reg; hg pull; hg up -C
-	cd deps/sync-storage; hg pull; hg up -C
+	cd deps/server-core; hg pull; hg up -C
+	cd deps/server-reg; hg pull; hg up -C
+	cd deps/server-storage; hg pull; hg up -C
 	rm -f coverage.xml
 	- $(COVERAGE) run --source=syncreg,synccore,syncstorage $(NOSE) $(TESTS); $(COVERAGE) xml
 
@@ -60,7 +60,7 @@ lint:
 	- $(PYLINT) -f parseable --rcfile=pylintrc $(PKGS) > pylint.txt
 
 qa:
-	rm -f deps/sync-reg/syncreg/templates/*.py
+	rm -f deps/server-reg/syncreg/templates/*.py
 	$(FLAKE8) $(PKGS)
 
 oldtest:
