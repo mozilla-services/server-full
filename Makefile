@@ -4,8 +4,8 @@ EZ = bin/easy_install
 NOSE = bin/nosetests -s --with-xunit
 FLAKE8 = bin/flake8
 COVEROPTS = --cover-html --cover-html-dir=html --with-coverage --cover-package=synccore,syncreg,syncstorage
-TESTS = deps/server-core/synccore/tests/ deps/server-reg/syncreg/tests deps/server-storage/syncstorage/tests
-PKGS = deps/server-core/synccore deps/server-reg/syncreg deps/server-storage/syncstorage
+TESTS = deps/server-core/synccore/tests/ deps/server-core/services/tests deps/server-reg/syncreg/tests deps/server-storage/syncstorage/tests
+PKGS = deps/server-core/synccore deps/server-core/services deps/server-reg/syncreg deps/server-storage/syncstorage
 COVERAGE = bin/coverage
 PYLINT = bin/pylint
 
@@ -53,7 +53,7 @@ hudson-coverage:
 	cd deps/server-reg; hg pull; hg up -C
 	cd deps/server-storage; hg pull; hg up -C
 	rm -f coverage.xml
-	- $(COVERAGE) run --source=syncreg,synccore,syncstorage $(NOSE) $(TESTS); $(COVERAGE) xml
+	- $(COVERAGE) run --source=syncreg,synccore,syncstorage,services $(NOSE) $(TESTS); $(COVERAGE) xml
 
 lint:
 	rm -f pylint.txt
