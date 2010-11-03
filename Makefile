@@ -26,6 +26,7 @@ build_extras:
 	$(EZ) pylint
 	$(EZ) pygments
 	$(EZ) python-memcached
+	$(EZ) pypi2rpm
 
 memcachedtest:
 	WEAVE_TESTFILE=memcached $(NOSE) $(TESTS)
@@ -65,3 +66,7 @@ qa:
 
 oldtest:
 	$(PYTHON) tests/functional/run_server_tests.py
+
+build_rpms:
+	cd deps/server-core; $(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncCore.spec
+
