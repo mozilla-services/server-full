@@ -8,8 +8,9 @@ TESTS = deps/server-core/synccore/tests/ deps/server-core/services/tests deps/se
 PKGS = deps/server-core/synccore deps/server-core/services deps/server-reg/syncreg deps/server-storage/syncstorage
 COVERAGE = bin/coverage
 PYLINT = bin/pylint
+PYPI2RPM = bin/pypi2rpm.py
 
-.PHONY: all build mysqltest ldaptest test coverage build_extras qa oldtest hudson-coverage lint memcachedtest memcachedldaptest
+.PHONY: all build mysqltest ldaptest test coverage build_extras qa oldtest hudson-coverage lint memcachedtest memcachedldaptest build_rpm2
 
 all:	build
 
@@ -68,5 +69,16 @@ oldtest:
 	$(PYTHON) tests/functional/run_server_tests.py
 
 build_rpms:
-	cd deps/server-core; $(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncCore.spec
+	rm -rf $(CURDIR)/rpms
+	mkdir $(CURDIR)/rpms
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms webob
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms paste 
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms pastedeploy 
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms sqlalchemy 
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms mako 
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms simplejson
+	cd deps/server-core; rm -rf build; ../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncCore.spec --dist-dir=$(CURDIR)/rpms
+	cd deps/server-storage; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncStorage.spec --binary-only --dist-dir=$(CURDIR)/rpms
+	cd deps/server-reg; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncReg.spec --dist-dir=$(CURDIR)/rpms
+
 
