@@ -35,7 +35,7 @@
 # ***** END LICENSE BLOCK *****
 from setuptools import setup
 
-install_requires = ['SyncStorage', 'SyncReg', 'SyncCore']
+install_requires = ['SyncStorage', 'SyncReg', 'SyncCore', 'PasteScript']
 
 entry_points = """
 [paste.app_factory]
