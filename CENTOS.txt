@@ -1,0 +1,26 @@
+================
+CentOS packaging
+================
+
+This is the process to release KeyExchange as a RPM collection.
+
+It requires a few tools::
+
+    $ yum install rpm-build python26 python26-setuptools gcc
+    $ easy_install-2.6 virtualenv
+
+
+Next, call make build to pull dependencies and set up a build environment::
+
+    $ make build
+    $ make build_extras
+
+To check that the environment works, make test should not fail::
+
+    $ make test
+
+Now you can create the RPM collection for the project and its dependencies::
+
+    $ make build_rpms
+
+Once this is over, you will find all rpms rpms/.
