@@ -3,7 +3,7 @@ PYTHON = bin/python
 EZ = bin/easy_install
 NOSE = bin/nosetests -s --with-xunit
 FLAKE8 = bin/flake8
-COVEROPTS = --cover-html --cover-html-dir=html --with-coverage --cover-package=synccore,syncreg,syncstorage
+COVEROPTS = --cover-html --cover-html-dir=html --with-coverage --cover-package=synccore,syncreg,syncstorage,services
 TESTS = deps/server-core/synccore/tests/ deps/server-core/services/tests deps/server-reg/syncreg/tests deps/server-storage/syncstorage/tests
 PKGS = deps/server-core/synccore deps/server-core/services deps/server-reg/syncreg deps/server-storage/syncstorage
 COVERAGE = bin/coverage
