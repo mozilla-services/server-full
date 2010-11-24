@@ -73,10 +73,13 @@ build_rpms:
 	rm -rf $(CURDIR)/rpms
 	mkdir $(CURDIR)/rpms
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms webob
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms paste 
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms pastedeploy 
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms sqlalchemy 
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms mako 
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms paste
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms pastedeploy
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms pastescript
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms sqlalchemy
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms mako
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms routes
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms markupsafe
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms simplejson
 	cd deps/server-core; rm -rf build; ../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncCore.spec --dist-dir=$(CURDIR)/rpms
 	cd deps/server-storage; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncStorage.spec --binary-only --dist-dir=$(CURDIR)/rpms
