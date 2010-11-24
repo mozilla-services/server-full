@@ -81,6 +81,8 @@ build_rpms:
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms routes
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms markupsafe
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms simplejson
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms python-ldap
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms mysql-python
 	cd deps/server-core; rm -rf build; ../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncCore.spec --dist-dir=$(CURDIR)/rpms
 	cd deps/server-storage; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncStorage.spec --binary-only --dist-dir=$(CURDIR)/rpms
 	cd deps/server-reg; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncReg.spec --dist-dir=$(CURDIR)/rpms
