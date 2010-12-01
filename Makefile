@@ -74,7 +74,7 @@ build_ldap:
 	mkdir $(CURDIR)/rpms -p
 	wget http://ziade.org/python-ldap-2.3.12.tar.gz
 	tar -xzvf python-ldap-2.3.12.tar.gz
-	cd python-ldap-2.3.12; ../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --dist-dir=$(CURDIR)/rpms --python=python26
+	cd python-ldap-2.3.12; ../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --dist-dir=$(CURDIR)/rpms --python=python26 --name=python26-ldap
 	rm python-ldap-2.3.12.tar.gz
 	rm -rf python-ldap-2.3.12
 
