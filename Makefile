@@ -10,7 +10,7 @@ COVERAGE = bin/coverage
 PYLINT = bin/pylint
 PYPI2RPM = bin/pypi2rpm.py
 
-.PHONY: all build mysqltest ldaptest test coverage build_extras qa oldtest hudson-coverage lint memcachedtest memcachedldaptest build_rpm2
+.PHONY: all build mysqltest ldaptest test coverage build_extras qa oldtest hudson-coverage lint memcachedtest memcachedldaptest build_rpm2 build_ldap
 
 all:	build
 
@@ -69,6 +69,13 @@ qa:
 
 oldtest:
 	$(PYTHON) tests/functional/run_server_tests.py
+
+build_ldap:
+	wget http://ziade.org/python-ldap-2.3.12.tar.gz
+	tar -xzvf python-ldap-2.3.12.tar.gz
+	cd python-ldap-2.3.12; ../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --dist-dir=$(CURDIR)/rpms
+	rm python-ldap-2.3.12.tar.gz
+	rm -rf python-ldap-2.3.12
 
 build_rpms:
 	rm -rf $(CURDIR)/rpms
