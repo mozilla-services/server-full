@@ -91,6 +91,7 @@ build_rpms:
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms markupsafe
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms simplejson
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms mysql-python
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms python-memcached
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms recaptcha-client
 	cd deps/server-core; rm -rf build; ../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=Services.spec --dist-dir=$(CURDIR)/rpms
 	cd deps/server-storage; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncStorage.spec --binary-only --dist-dir=$(CURDIR)/rpms
