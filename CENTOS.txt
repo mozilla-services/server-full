@@ -4,6 +4,21 @@ CentOS packaging
 
 This is the process to release KeyExchange as a RPM collection.
 
+python26-ldap
+=============
+
+The Ldap package cannot be built automatically on CentOS, due to a bug
+in its source code. To create python26-openldap, you need to used a
+patched version I have created.
+
+Here's how::
+
+    XXX TBD
+
+
+Building other RPMS
+===================
+
 It requires a few tools::
 
     $ yum install rpm-build python26 python26-setuptools gcc
