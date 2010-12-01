@@ -6,7 +6,7 @@ This is the process to release KeyExchange as a RPM collection.
 
 It requires a few tools::
 
-    $ yum install rpm-build python26 python26-setuptools gcc
+    $ yum install rpm-build python26 python26-setuptools gcc python26-devel mysql-devel openldap-devel
     $ easy_install-2.6 virtualenv
 
 
