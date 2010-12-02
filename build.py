@@ -48,13 +48,23 @@ def build_deps():
         if not os.path.exists(deps):
             os.mkdir(deps)
         for dep in ('server-core', 'server-reg', 'server-storage'):
+            # looking for an environ with a specific tag or rev
+            rev = os.environ.get(dep.upper().replace('-', '_'))
+            if rev is not None:
+                update_cmd = 'hg up -r %s -C' % rev
+            else:
+                update_cmd = 'hg up -C'
+
             repo = REPO_ROOT + dep
             target = os.path.join(deps, dep)
             if os.path.exists(target):
-                os.system('hg pull; hg up')
+                os.chdir(target)
+                os.system('hg pull')
             else:
                 os.system('hg clone %s %s' % (repo, target))
-            os.chdir(target)
+                os.chdir(target)
+
+            os.system(update_cmd)
             os.system('%s setup.py develop' % python)
     finally:
         os.chdir(location)
