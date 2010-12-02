@@ -36,7 +36,7 @@
 """
 Application entry point.
 """
-from synccore.baseapp import set_app
+from services.baseapp import set_app
 
 # XXX alternatively we should use Paste composite feature here
 from syncreg.wsgiapp import urls as reg_urls, controllers as reg_controllers
