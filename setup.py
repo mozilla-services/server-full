@@ -46,4 +46,5 @@ main = paste.script.appinstall:Installer
 """
 
 setup(name='SyncServer', version=0.1, packages=['syncserver'],
-      install_requires=install_requires, entry_points=entry_points)
+      install_requires=install_requires, entry_points=entry_points
+      package_data={'servereg': ['templates/*.mako']})
