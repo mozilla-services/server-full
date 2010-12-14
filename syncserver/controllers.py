@@ -44,7 +44,9 @@ import os
 from webob.response import Response
 from mako.lookup import TemplateLookup
 
-from services.util import valid_password, text_response, html_response
+from services.util import (valid_password, text_response, html_response,
+                           extract_username)
+
 from syncreg.util import render_mako
 
 _TPL_DIR = os.path.join(os.path.dirname(__file__), 'templates')
@@ -70,6 +72,7 @@ class MainController(object):
         if user_name is None or password is None:
             return text_response('Missing data')
 
+        user_name = extract_username(user_name)
         user_id = self.auth.authenticate_user(user_name, password)
         if user_id is None:
             return text_response('Bad credentials')
