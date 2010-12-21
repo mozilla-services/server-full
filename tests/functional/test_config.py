@@ -1,5 +1,5 @@
-SCHEME = "http"
-SERVER_NAME = "weave-dev-reg01"
+SCHEME = "https"
+SERVER_NAME = "dev-auth.services.mozilla.org"
 SERVER_BASE = "%s://%s" % (SCHEME, SERVER_NAME)
 
 STORAGE_SCHEME = None
