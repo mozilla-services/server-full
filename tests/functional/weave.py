@@ -20,6 +20,16 @@ class WeaveException(Exception):
     def __str__(self):
         return repr(self.value)
 
+
+def _url_error(error, url):
+    msg = "Unable to communicate with Weave server: "
+    try:
+        msg += error.read()
+    except:
+        pass
+    raise WeaveException(msg + url)
+
+
 def createUser(serverURL, userID, password, email, secret = None, captchaChallenge = None, captchaResponse = None, withHost =None):
     if userID.find('"') >=0:
         raise ValueError("Weave userIDs may not contain the quote character")
@@ -54,12 +64,7 @@ def createUser(serverURL, userID, password, email, secret = None, captchaChallen
             raise WeaveException("Unable to create new user: got return value '%s' from server" % result)
 
     except urllib2.URLError, e:
-        msg = ""
-        try:
-            msg = e.read()
-        except:
-            pass
-        raise WeaveException("Unable to communicate with Weave server: " + str(e) + "; %s" % msg)
+        _url_error(e, url)
 
 
 def checkNameAvailable(serverURL, userID, withHost=None):
@@ -81,16 +86,7 @@ def checkNameAvailable(serverURL, userID, withHost=None):
         else:
             raise WeaveException("Unexpected return value from server on name-availability request: '%s'" % result)
     except urllib2.URLError, e:
-        raise WeaveException("Unable to communicate with Weave server: " + str(e))
-
-
-def _url_error(error, url):
-    msg = "Unable to communicate with Weave server: "
-    try:
-        msg += error.read()
-    except:
-        pass
-    raise WeaveException(msg + url)
+        _url_error(e, url)
 
 
 def getUserStorageNode(serverURL, userID, password, withHost=None):
