@@ -239,10 +239,14 @@ class TestStorage(unittest.TestCase):
             return (userID, storageServer)
         else:
             # Clear out old objects
-            collections = weave.get_collection_timestamps(self.storageServer, self.userID, self.password, withHost=test_config.HOST_NAME)
-            if len(collections):
-                for c in collections.keys():
-                    weave.delete_items(self.storageServer, self.userID, self.password, c, withHost=test_config.HOST_NAME)
+            try:
+                collections = weave.get_collection_timestamps(self.storageServer, self.userID, self.password, withHost=test_config.HOST_NAME)
+            except WeaveException:
+                pass
+            else:
+                if len(collections):
+                    for c in collections.keys():
+                        weave.delete_items(self.storageServer, self.userID, self.password, c, withHost=test_config.HOST_NAME)
             return (self.userID, self.storageServer)
 
     def testAdd(self):
