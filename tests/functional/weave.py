@@ -84,6 +84,15 @@ def checkNameAvailable(serverURL, userID, withHost=None):
         raise WeaveException("Unable to communicate with Weave server: " + str(e))
 
 
+def _url_error(error, url):
+    msg = "Unable to communicate with Weave server: "
+    try:
+        msg += error.read()
+    except:
+        pass
+    raise WeaveException(msg + url)
+
+
 def getUserStorageNode(serverURL, userID, password, withHost=None):
     if userID.find('"') >=0:
         raise ValueError("Weave userIDs may not contain the quote character")
@@ -107,8 +116,7 @@ def getUserStorageNode(serverURL, userID, password, withHost=None):
         if str(e).find("404") >= 0:
             return serverURL
         else:
-            msg = "Unable to communicate with Weave server: "
-            raise WeaveException(msg + url)
+            _url_error(e, url)
 
 
 def changeUserEmail(serverURL, userID, password, newemail, withHost=None):
@@ -134,7 +142,7 @@ def changeUserEmail(serverURL, userID, password, newemail, withHost=None):
             raise WeaveException("Unable to change user email: got return value '%s' from server" % result)
 
     except urllib2.URLError, e:
-        raise WeaveException("Unable to communicate with Weave server: %s" % e)
+        _url_error(e, url)
 
 
 
@@ -159,7 +167,7 @@ def changeUserPassword(serverURL, userID, password, newpassword, withHost=None):
             raise WeaveException("Unable to change user password: got return value '%s' from server" % result)
 
     except urllib2.URLError, e:
-        raise WeaveException("Unable to communicate with Weave server: %s" % e)
+        _url_error(e, url)
 
 
 
@@ -180,13 +188,7 @@ def deleteUser(serverURL, userID, password, withHost=None):
         result = f.read()
 
     except urllib2.URLError, e:
-        msg = ""
-        try:
-            msg = e.read()
-        except:
-            pass
-        raise WeaveException("Unable to communicate with Weave server: " + str(e) + "; %s" % msg)
-
+        _url_error(e, url)
 
 
 def setUserProfile(serverURL, userID, profileField, profileValue, withHost=None):
@@ -209,10 +211,7 @@ def setUserProfile(serverURL, userID, profileField, profileValue, withHost=None)
             raise WeaveException("Unable to change user password: got return value '%s' from server" % result)
 
     except urllib2.URLError, e:
-        raise WeaveException("Unable to communicate with Weave server: %s" % e)
-
-
-
+        _url_error(e, url)
 
 
 def storage_http_op(method, userID, password, url, payload=None, asJSON=True, ifUnmodifiedSince=None, withConfirmation=None, withAuth=True, withHost=None, outputFormat=None):
@@ -243,14 +242,8 @@ def storage_http_op(method, userID, password, url, payload=None, asJSON=True, if
         else:
             return result
     except urllib2.URLError, e:
-        msg = ""
-        try:
-            msg = e.read()
-        except:
-            pass
         # TODO process error code
-        raise WeaveException("Unable to communicate with Weave server: %s %s" % (e,
-            msg))
+        _url_error(e, url)
 
 
 def add_or_modify_item(storageServerURL, userID, password, collection, item, urlID=None, ifUnmodifiedSince=None, withHost=None):
