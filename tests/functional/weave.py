@@ -22,12 +22,19 @@ class WeaveException(Exception):
 
 
 def _url_error(error, url):
-    msg = "Unable to communicate with Weave server: "
+    if hasattr(error, 'code'):
+        code = error.code
+    else:
+        code = 'N/A'
+
+    msg = ["Unable to communicate with Weave server",
+           "Code: %s" % str(code)]
     try:
-        msg += error.read()
+        msg.append(error.read())
     except:
         pass
-    raise WeaveException(msg + url)
+    msg.append(url)
+    raise WeaveException('\n'.join(msg))
 
 
 def createUser(serverURL, userID, password, email, secret = None, captchaChallenge = None, captchaResponse = None, withHost =None):
