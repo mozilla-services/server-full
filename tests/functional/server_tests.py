@@ -241,7 +241,7 @@ class TestStorage(unittest.TestCase):
             # Clear out old objects
             try:
                 collections = weave.get_collection_timestamps(self.storageServer, self.userID, self.password, withHost=test_config.HOST_NAME)
-            except WeaveException:
+            except weave.WeaveException:
                 pass
             else:
                 if len(collections):
