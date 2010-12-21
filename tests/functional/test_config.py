@@ -1,12 +1,12 @@
 SCHEME = "http"
-SERVER_NAME = "localhost"
+SERVER_NAME = "weave-dev-reg01"
 SERVER_BASE = "%s://%s" % (SCHEME, SERVER_NAME)
 
-STORAGE_SCHEME = "http"
-STORAGE_SERVER = "localhost"
+STORAGE_SCHEME = None
+STORAGE_SERVER = None
 
 HOST_NAME = None
-USERNAME = "weaveunittest_dljsxsnmen"
+USERNAME = None
 PASSWORD = "mypassword"
 
 memcache = True
