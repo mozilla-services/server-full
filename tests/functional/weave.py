@@ -107,7 +107,8 @@ def getUserStorageNode(serverURL, userID, password, withHost=None):
         if str(e).find("404") >= 0:
             return serverURL
         else:
-            raise WeaveException("Unable to communicate with Weave server: " + str(e))
+            msg = "Unable to communicate with Weave server: "
+            raise WeaveException(msg + url)
 
 
 def changeUserEmail(serverURL, userID, password, newemail, withHost=None):
