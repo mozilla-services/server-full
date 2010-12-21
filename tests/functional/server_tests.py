@@ -35,7 +35,6 @@ class TestAccountManagement(unittest.TestCase):
 
         email = 'testuser@test.com'
         password = 'mypassword'
-
         while True:
             userID = 'weaveunittest_' + ''.join([chr(random.randint(ord('a'), ord('z'))) for i in xrange(10)])
             if not weave.checkNameAvailable(test_config.SERVER_BASE, userID, withHost=test_config.HOST_NAME):
@@ -197,6 +196,7 @@ class TestStorage(unittest.TestCase):
                     weave.createUser(test_config.SERVER_BASE, self.userID, self.password, self.email, withHost=test_config.HOST_NAME)
                     break
                 self.storageServer = weave.getUserStorageNode(test_config.SERVER_BASE, self.userID, self.password, withHost=test_config.HOST_NAME)
+                self.storageServer = self.storageServer.rstrip('/')
                 self.userList.append((self.userID, self.storageServer))
 
     def tearDown(self):
