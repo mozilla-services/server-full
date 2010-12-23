@@ -97,3 +97,8 @@ build_rpms:
 	cd deps/server-storage; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncStorage.spec --binary-only --dist-dir=$(CURDIR)/rpms
 	cd deps/server-reg; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncReg.spec --dist-dir=$(CURDIR)/rpms
 
+bench_one:
+	cd tests/loadtest; ../../bin/fl-run-test simple SimpleTest.test_simple
+
+bench:
+	cd tests/loadtest; ../../bin/fl-run-bench simple SimpleTest.test_simple
