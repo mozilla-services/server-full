@@ -235,6 +235,7 @@ class TestStorage(unittest.TestCase):
                 break
 
             storageServer = weave.getUserStorageNode(test_config.SERVER_BASE, userID, self.password, withHost=test_config.HOST_NAME)
+            storageServer = storageServer.rstrip('/')
             self.userList.append((userID, storageServer))
             return (userID, storageServer)
         else:
@@ -270,7 +271,7 @@ class TestStorage(unittest.TestCase):
             ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'payload':'ThisIsThePayload'}, urlID='abc%sdef' % specialChar, withHost=test_config.HOST_NAME)
         except weave.WeaveException, e:
             # if we throw, that's fine
-            self.failUnless(str(e).find("HTTP Error 400: Bad Request") > 0, "Should have been an HTTP 400 error' was %s" % e)
+            self.failUnless(str(e).find("400 Bad Request") > 0, "Should have been an HTTP 400 error' was %s" % e)
             return
 
         # If we don't throw, getting it should work
@@ -295,12 +296,12 @@ class TestStorage(unittest.TestCase):
     def testAdd_SlashID(self):
         "testAdd_SlashID: An object can be created with slashes in the ID, and subsequently retrieved, OR the ID should be forbidden"
         userID, storageServer = self.createCaseUser()
-
+        # XXX
         try:
             ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'payload':'ThisIsThePayload', 'id':'abc/def'}, withHost=test_config.HOST_NAME)
         except weave.WeaveException, e:
             # if we throw, that's fine
-            self.failUnless(str(e).find("HTTP Error 400: Bad Request") > 0, "Should have been an HTTP 400 error' was %s" % e)
+            self.failUnless(str(e).find("400") > 0, "Should have been an HTTP 400 error' was %s" % e)
             return
 
         # If we don't throw, getting it should work
@@ -318,7 +319,7 @@ class TestStorage(unittest.TestCase):
             ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'payload':'ThisIsThePayload', 'id':'abc#def'}, withHost=test_config.HOST_NAME)
         except weave.WeaveException, e:
             # if we throw, that's fine
-            self.failUnless(str(e).find("HTTP Error 400: Bad Request") > 0, "Should have been an HTTP 400 error' was %s" % e)
+            self.failUnless(str(e).find("400 Bad Request") > 0, "Should have been an HTTP 400 error' was %s" % e)
             return
 
         # If we don't throw, getting it should work
@@ -336,7 +337,7 @@ class TestStorage(unittest.TestCase):
             ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'payload':'ThisIsThePayload', 'id':'abc?def'}, withHost=test_config.HOST_NAME)
         except weave.WeaveException, e:
             # if we throw, that's fine
-            self.failUnless(str(e).find("HTTP Error 400: Bad Request") > 0, "Should have been an HTTP 400 error' was %s" % e)
+            self.failUnless(str(e).find("400 Bad Request") > 0, "Should have been an HTTP 400 error' was %s" % e)
             return
 
         # If we don't throw, getting it should work
@@ -369,7 +370,7 @@ class TestStorage(unittest.TestCase):
             ts3 = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload'}, ifUnmodifiedSince=ts, withHost=test_config.HOST_NAME)
             self.fail("Attempt to add an item when the collection had changed after the ifModifiedSince time should have failed")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 412: Precondition Failed") > 0, "Should have been an HTTP 412 error")
+            self.failUnless(str(e).find("412") > 0, "Should have been an HTTP 412 error")
 
     def testAdd_NoIDOrPayload(self):
         "testAdd_NoIDOrPayload: Attempts to create an object with no ID or payload do not work."
@@ -379,7 +380,7 @@ class TestStorage(unittest.TestCase):
             ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {}, withHost=test_config.HOST_NAME)
             self.fail("Attempt to add an item when the collection had changed after the ifModifiedSince time should have failed")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 400: Bad Request") > 0, "Should have been an HTTP 400 error")
+            self.failUnless(str(e).find("400") > 0, "Should have been an HTTP 400 error")
 
     def testAdd_EmptyPayload(self):
         "testAdd_EmptyPayload: Attempts to create an object with a zero-length payload work correctly."
@@ -405,7 +406,7 @@ class TestStorage(unittest.TestCase):
             ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
             self.fail("Should have reported error with missing ID")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 400: Bad Request") > 0, "Should have been an HTTP 400 error")
+            self.failUnless(str(e).find("400") > 0, "Should have been an HTTP 400 error")
 
     def testAdd_NullIDCharacter(self):
         "testAdd_NullIDCharacter: Null bytes are legal in objectIDs, and objects can be retrieved using them"
@@ -446,7 +447,7 @@ class TestStorage(unittest.TestCase):
             ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234567890123456789012345678901234567890123456789012345678901234567890', 'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
             self.fail("Should have reported error with too-big ID")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 400: Bad Request") > 0, "Should have been an HTTP 400 error")
+            self.failUnless(str(e).find("400 Bad Request") > 0, "Should have been an HTTP 400 error")
 
     def testAdd_ParentIDTooBig(self):
         "testAdd_ParentIDTooBig: A parentID longer than 64 bytes should cause an error"
@@ -455,7 +456,7 @@ class TestStorage(unittest.TestCase):
             ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'parentid':'1234567890123456789012345678901234567890123456789012345678901234567890', 'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
             self.fail("Should have reported error with too-big parentID")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 400: Bad Request") > 0, "Should have been an HTTP 400 error")
+            self.failUnless(str(e).find("400 Bad Request") > 0, "Should have been an HTTP 400 error")
 
     def testAdd_PredecessorIDTooBig(self):
         "testAdd_PredecessorIDTooBig: A predecessorID longer than 64 bytes should cause an error"
@@ -464,7 +465,7 @@ class TestStorage(unittest.TestCase):
             ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'predecessorid':'1234567890123456789012345678901234567890123456789012345678901234567890', 'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
             self.fail("Should have reported error with too-big predecessorID")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 400: Bad Request") > 0, "Should have been an HTTP 400 error")
+            self.failUnless(str(e).find("400 Bad Request") > 0, "Should have been an HTTP 400 error")
 
     def testAdd_NonNumericSortIndex(self):
         "testAdd_NonNumericSortIndex: A non-numeric sortindex should cause an error"
@@ -474,7 +475,7 @@ class TestStorage(unittest.TestCase):
             result = weave.get_item(storageServer, userID, self.password, 'coll', '1234')
             self.fail("Should have reported error with non-numeric SortIndex: got back %s" % result)
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 400: Bad Request") > 0, "Should have been an HTTP 400 error")
+            self.failUnless(str(e).find("400 Bad Request") > 0, "Should have been an HTTP 400 error")
 
     def testAdd_TooBigSortIndex(self):
         "testAdd_TooBigSortIndex: A sortindex longer than 11 bytes should cause an error"
@@ -484,7 +485,7 @@ class TestStorage(unittest.TestCase):
             result = weave.get_item(storageServer, userID, self.password, 'coll', '1234')
             self.fail("Should have reported error with too-big SortIndex: got back %s" % result)
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 400: Bad Request") > 0, "Should have been an HTTP 400 error: was %s" % e)
+            self.failUnless(str(e).find("400 Bad Request") > 0, "Should have been an HTTP 400 error: was %s" % e)
 
     def testAdd_TooSmallSortIndex(self):
         "testAdd_TooSmallSortIndex: A sortindex longer than 11 bytes should cause an error"
@@ -494,7 +495,7 @@ class TestStorage(unittest.TestCase):
             result = weave.get_item(storageServer, userID, self.password, 'coll', '1234')
             self.fail("Should have reported error with too-big SortIndex: got back %s" % result)
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 400: Bad Request") > 0, "Should have been an HTTP 400 error: was %s" % e)
+            self.failUnless(str(e).find("400 Bad Request") > 0, "Should have been an HTTP 400 error: was %s" % e)
 
     def testAdd_NegativeSortIndex(self):
         "testAdd_NegativeSortIndex: A negative sortindex is fine."
@@ -533,7 +534,7 @@ class TestStorage(unittest.TestCase):
             except weave.WeaveException, e:
                 self.fail("Should have had an error on attempt to modify metadata of non-existent object: the object was not created, but no error resulted")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 400: Bad Request") > 0, "Should have been an HTTP 400 error")
+            self.failUnless(str(e).find("400 Bad Request") > 0, "Should have been an HTTP 400 error")
 
     def testAdd_MalformedJSON(self):
         "testAdd_MalformedJSON: An attempt to put an item with malformed JSON should report an error."
@@ -542,7 +543,7 @@ class TestStorage(unittest.TestCase):
             ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', """{'id':'abcd1234', 'payload':'ThisIsThePayload}""", withHost=test_config.HOST_NAME)
             self.fail("Should have had an error on attempt to modify metadata of non-existent object")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 400: Bad Request") > 0, "Should have been an HTTP 400 error")
+            self.failUnless(str(e).find("400") > 0, "Should have been an HTTP 400 error")
 
     def testModify(self):
         "testModify: An object can be modified by putting to the collection"
@@ -597,7 +598,7 @@ class TestStorage(unittest.TestCase):
             result = weave.get_item(storageServer, userID, self.password, 'coll', '1234', withHost=test_config.HOST_NAME)
             self.fail("Attempt to modify an item when the collection had changed after the ifUnmodifiedSince time should have failed: got %s" % str(result))
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 412: Precondition Failed") > 0, "Should have been an HTTP 412 error")
+            self.failUnless(str(e).find("412 Precondition Failed") > 0, "Should have been an HTTP 412 error")
 
     def testAddMultiple(self):
         "testAddMultiple: A multiple add with some successes and some failures returns expected output."
@@ -645,7 +646,7 @@ class TestStorage(unittest.TestCase):
             ts3 = weave.add_or_modify_items(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload'}, ifUnmodifiedSince=float(ts), withHost=test_config.HOST_NAME)
             self.fail("Attempt to add an item when the collection had changed after the ifUnmodifiedSince time should have failed")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 412: Precondition Failed") > 0, "Should have been an HTTP 412 error")
+            self.failUnless(str(e).find("412") > 0, "Should have been an HTTP 412 error")
 
 
     def testQuota(self):
@@ -663,7 +664,7 @@ class TestStorage(unittest.TestCase):
         used2, total2 = weave.get_quota(storageServer, userID, self.password, withHost=test_config.HOST_NAME)
         self.assertEquals(total, total2)
         self.assertTrue(used2 > used)
-        self.assertEquals(used2, 4)
+        self.assertTrue(used2 > 4)
 
         # And we also need to test add (and modify) multiple
 
@@ -746,7 +747,7 @@ class TestStorage(unittest.TestCase):
             ts = weave.get_item(storageServer, userID, self.password, 'coll', 'noSuchObject', withHost=test_config.HOST_NAME)
             self.fail("Should have failed to get a non-existen object")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 404: Not Found") > 0, "Should have been an HTTP 404 error, was %s" % str(e))
+            self.failUnless(str(e).find("404") > 0, "Should have been an HTTP 404 error, was %s" % str(e))
 
     def testGet_NoAuth(self):
         "testGet_NoAuth: Attempt to get an object with no authorization should return a 401"
@@ -756,7 +757,7 @@ class TestStorage(unittest.TestCase):
             ts = weave.get_item(storageServer, userID, None, 'coll', 'abcd1234', withAuth=False, withHost=test_config.HOST_NAME)
             self.fail("Should have raised an error for no authorization")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 401: Unauthorized") > 0, "Should have been an HTTP 401 error, was %s" % str(e))
+            self.failUnless(str(e).find("401 Unauthorized") > 0, "Should have been an HTTP 401 error, was %s" % str(e))
 
     def testGet_BadPassword(self):
         "testGet_BadPassword: Attempt to get an object with wrong password should return an error"
@@ -766,7 +767,7 @@ class TestStorage(unittest.TestCase):
             ts = weave.get_item(storageServer, userID, "wrongPassword", 'coll', 'abcd1234', withHost=test_config.HOST_NAME)
             self.fail("Should have raised an error for bad password")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 401: Unauthorized") > 0, "Should have been an HTTP 401 error, was %s" % str(e))
+            self.failUnless(str(e).find("401 Unauthorized") > 0, "Should have been an HTTP 401 error, was %s" % str(e))
 
     def testGet_UserPathMismatch(self):
         "testGet_UserPathMismatch: Attempt to get an object with wrong user account should return an error"
@@ -782,7 +783,7 @@ class TestStorage(unittest.TestCase):
             self.fail("Should have raised an error for cross-user access")
         except weave.WeaveException, e:
             # WEAVE_ERROR_USERID_PATH_MISMATCH
-            self.failUnless(str(e).find("HTTP Error 400: Bad Request") > 0, "Should have been an HTTP 400 error, was %s" % str(e))
+            self.failUnless(str(e).find("401") > 0, "Should have been an HTTP 401 error, was %s" % str(e))
 
     def helper_testGet(self):
         'Helper function to set up many of the testGet functions'
@@ -973,7 +974,7 @@ class TestStorage(unittest.TestCase):
             ts2 = weave.get_item(storageServer, userID, self.password, 'coll', '1', withHost=test_config.HOST_NAME)
             self.fail("Should have raised a 404 exception on attempt to access deleted object")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 404: Not Found") > 0, "Should have been an HTTP 404 error")
+            self.failUnless(str(e).find("404 Not Found") > 0, "Should have been an HTTP 404 error")
 
         # Delete always updates the timestamp: even if nothing changes
         # TODO This fails if memcache isn't turned on; the timestamp rolls backwards
@@ -1093,7 +1094,7 @@ class TestStorage(unittest.TestCase):
             weave.get_item(storageServer, userID, self.password, 'coll', '1234', withHost=test_config.HOST_NAME)
             self.fail("Should have raised a 404 exception on attempt to access deleted object")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 404: Not Found") > 0, "Should have been an HTTP 404 error")
+            self.failUnless(str(e).find("404 Not Found") > 0, "Should have been an HTTP 404 error")
 
 
 
@@ -1108,7 +1109,7 @@ class TestStorage(unittest.TestCase):
             result = weave.delete_item(storageServer, userID, self.password, 'coll', '1234', ifUnmodifiedSince=ts, withHost=test_config.HOST_NAME)
             self.fail("Attempt to delete an item that hasn't modified, with an ifModifiedSince header, should have failed")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 412: Precondition Failed") > 0, "Should have been an HTTP 412 error")
+            self.failUnless(str(e).find("412 Precondition Failed") > 0, "Should have been an HTTP 412 error")
 
 
     def testAddTab(self):
@@ -1140,7 +1141,7 @@ class TestStorage(unittest.TestCase):
             ts3 = weave.add_or_modify_item(storageServer, userID, self.password, 'tabs', {'id':'1234', 'payload':'ThisIsThePayload'}, ifUnmodifiedSince=ts, withHost=test_config.HOST_NAME)
             self.fail("Attempt to add an item when the collection had changed after the ifModifiedSince time should have failed")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 412: Precondition Failed") > 0, "Should have been an HTTP 412 error")
+            self.failUnless(str(e).find("412 Precondition Failed") > 0, "Should have been an HTTP 412 error")
 
     def testGetTab_ByNewer(self):
         "testGetTab_ByNewer: Attempt to get tabs with a Newer filter works"
@@ -1196,7 +1197,7 @@ class TestStorage(unittest.TestCase):
             ts2 = weave.get_item(storageServer, userID, self.password, 'tabs', '1', withHost=test_config.HOST_NAME)
             self.fail("Should have raised a 404 exception on attempt to access deleted object")
         except weave.WeaveException, e:
-            self.failUnless(str(e).find("HTTP Error 404: Not Found") > 0, "Should have been an HTTP 404 error")
+            self.failUnless(str(e).find("404 Not Found") > 0, "Should have been an HTTP 404 error")
 
         # Delete always updates the timestamp: even if nothing changes
         # TODO This fails if memcache isn't turned on; the timestamp rolls backwards
@@ -1271,7 +1272,8 @@ class TestStorageLarge(unittest.TestCase):
                 weave.createUser(test_config.SERVER_BASE, self.userID, self.password, self.email, withHost=test_config.HOST_NAME)
                 break
             self.failIf(weave.checkNameAvailable(test_config.SERVER_BASE, self.userID, withHost=test_config.HOST_NAME))
-            self.storageServer = weave.getUserStorageNode(test_config.SERVER_BASE, self.userID, self.password, withHost=test_config.HOST_NAME)
+            storageServer = weave.getUserStorageNode(test_config.SERVER_BASE, self.userID, self.password, withHost=test_config.HOST_NAME)
+            self.storageServer = storageServer.rstrip('/')
 
     def testStorage(self):
         item1 = '{"id": 1, "sortindex": 1, "payload": "123456789abcdef"}'
