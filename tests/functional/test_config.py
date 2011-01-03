@@ -1,5 +1,5 @@
-SCHEME = "https"
-SERVER_NAME = "dev-auth.services.mozilla.com"
+SCHEME = "http"
+SERVER_NAME = "localhost:5000"  #"dev-auth.services.mozilla.com"
 SERVER_BASE = "%s://%s" % (SCHEME, SERVER_NAME)
 
 STORAGE_SCHEME = None

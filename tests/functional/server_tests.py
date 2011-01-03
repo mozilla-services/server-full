@@ -1124,7 +1124,7 @@ class TestStorage(unittest.TestCase):
         userID, storageServer = self.createCaseUser()
 
         ts = weave.add_or_modify_item(storageServer, userID, self.password, 'tabs', {'id':'1234', 'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
-        time.sleep(.01)
+        time.sleep(0.2)
         ts2 = weave.add_or_modify_item(storageServer, userID, self.password, 'tabs', {'id':'1234', 'payload':'ThisIsThePayload'}, ifUnmodifiedSince=ts, withHost=test_config.HOST_NAME)
 
         result = weave.get_item(storageServer, userID, self.password, 'tabs', '1234', withHost=test_config.HOST_NAME)
@@ -1345,6 +1345,7 @@ class TestStorageLarge(unittest.TestCase):
         self.failUnlessEqual({'id':'4', 'parentid':'1', 'sortindex': 5, 'payload':'567abcdef123456789'}, result)
 
         # delete updates the timestamp
+        time.sleep(0.1)
         timestamp5 = weave.delete_items_older_than(self.storageServer, self.userID, self.password, 'foo', float(timestamp2) + .01, withHost=test_config.HOST_NAME)
         counts = weave.get_collection_counts(self.storageServer, self.userID, self.password, withHost=test_config.HOST_NAME)
         counts = [(k, int(v)) for k, v in counts.items()]
