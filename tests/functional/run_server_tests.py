@@ -48,9 +48,9 @@ if __name__ == '__main__':
     options, args = parser.parse_args()
 
     if options.scheme:
-        test_config.STORAGE_SCHEME = options.scheme
+        test_config.SCHEME = options.scheme
     if options.server:
-        test_config.STORAGE_SERVER =  options.server
+        test_config.SERVER_NAME =  options.server
     if options.host:
         test_config.HOST_NAME = options.host
     if options.username:

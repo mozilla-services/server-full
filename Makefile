@@ -68,7 +68,7 @@ qa:
 	$(FLAKE8) $(PKGS)
 
 oldtest:
-	$(PYTHON) tests/functional/run_server_tests.py --scheme=https --host=dev-auth.services.mozilla.com
+	$(PYTHON) tests/functional/run_server_tests.py --scheme=https --server=dev-auth.services.mozilla.com
 
 build_ldap:
 	mkdir $(CURDIR)/rpms -p
