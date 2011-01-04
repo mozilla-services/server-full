@@ -46,7 +46,6 @@ if __name__ == '__main__':
                       dest="memcache")
 
     options, args = parser.parse_args()
-
     if options.scheme:
         test_config.SCHEME = options.scheme
     if options.server:
@@ -59,7 +58,8 @@ if __name__ == '__main__':
         test_config.PASSWORD = options.password
 
     test_config.memcache = options.memcache == "1"
-
+    test_config.SERVER_BASE = "%s://%s" % (test_config.SCHEME,
+                                           test_config.SERVER_NAME)
     tests = args
     any_problems = False
 
