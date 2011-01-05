@@ -9,6 +9,8 @@ PKGS = deps/server-core/services deps/server-reg/syncreg deps/server-storage/syn
 COVERAGE = bin/coverage
 PYLINT = bin/pylint
 PYPI2RPM = bin/pypi2rpm.py
+SERVER = dev-auth.services.mozilla.com
+SCHEME = https
 
 .PHONY: all build mysqltest ldaptest test coverage build_extras qa oldtest hudson-coverage lint memcachedtest memcachedldaptest build_rpm2 build_ldap
 
@@ -68,7 +70,7 @@ qa:
 	$(FLAKE8) $(PKGS)
 
 oldtest:
-	$(PYTHON) tests/functional/run_server_tests.py --scheme=https --server=dev-auth.services.mozilla.com
+	$(PYTHON) tests/functional/run_server_tests.py --scheme=$(SCHEME) --server=$(SERVER)
 
 build_ldap:
 	mkdir $(CURDIR)/rpms -p
