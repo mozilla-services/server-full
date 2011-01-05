@@ -27,7 +27,6 @@ import test_config
 class TestAccountManagement(unittest.TestCase):
 
     def testAccountManagement(self):
-
         if test_config.USERNAME:
             # If we have a username, we're running against a production server
             # and don't want to create new accounts.  Just return silently for now.
@@ -1295,6 +1294,7 @@ class TestStorageLarge(unittest.TestCase):
         self.assertEqual(len(counts), 2)
         self.assertEqual(int(counts['history']), 1)
         self.assertEqual(int(counts['foo']), 1)
+
         timestamps = weave.get_collection_timestamps(self.storageServer, self.userID, self.password, withHost=test_config.HOST_NAME)
         self.failUnlessEqual({'history':float(timestamp1), 'foo':float(timestamp2)}, timestamps)
 
@@ -1344,9 +1344,10 @@ class TestStorageLarge(unittest.TestCase):
         del result['modified']
         self.failUnlessEqual({'id':'4', 'parentid':'1', 'sortindex': 5, 'payload':'567abcdef123456789'}, result)
 
-        # delete updates the timestamp
-        time.sleep(0.1)
-        timestamp5 = weave.delete_items_older_than(self.storageServer, self.userID, self.password, 'foo', float(timestamp2) + .01, withHost=test_config.HOST_NAME)
+        # delete updates the timestamp, all items in "foo" should be gone but
+        # one
+        timestamp5 = weave.delete_items_older_than(self.storageServer, self.userID, self.password, 'foo',
+                                                   float(timestamp4), withHost=test_config.HOST_NAME)
         counts = weave.get_collection_counts(self.storageServer, self.userID, self.password, withHost=test_config.HOST_NAME)
         counts = [(k, int(v)) for k, v in counts.items()]
         counts.sort()
