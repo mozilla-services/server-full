@@ -28,15 +28,17 @@ def _deploy(packages):
         check_run('tar -xzvf rpms.tgz')
 
     with cd('/tmp/rpms'):
-        check_sudo('cp -r /etc/sync /etc/sync.saved')
-        check_sudo('cp -r /etc/nginx/conf.d /etc/nginx/conf.d.old')
+        check_sudo('mv /etc/sync /tmp/sync-old')
+        check_sudo('mv /etc/nginx/conf.d /tmp/conf.d-old')
         check_sudo('find . -name "python26-services-*.noarch.rpm" '
              '| xargs rpm -F')
         for package in packages:
             check_sudo('find . -name "python26-%s-*.noarch.rpm" '
                         '| xargs rpm -F' % package)
-        check_sudo('mv /etc/sync.saved /etc/sync')
-        check_sudo('mv /etc/nginx/conf.d.old /etc/nginx/conf.d')
+        check_sudo('mv /tmp/sync-old /etc/sync')
+        check_sudo('mv /tmp/conf.d-old /etc/nginx/conf.d')
+        check_sudo('rm -rf /tmp/sync-old')
+        check_sudo('rm -rf /tmp/conf.d-old')
         check_sudo('killall gunicorn nginx')
 
     check_run('rm -rf /tmp/rpms')
