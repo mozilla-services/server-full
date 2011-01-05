@@ -18,6 +18,7 @@ all:	build
 
 # XXX we could switch to zc.buildout here
 build:
+	rm -rf lib64 bin lib include
 	$(VIRTUALENV) --no-site-packages --distribute .
 	$(PYTHON) build.py
 
