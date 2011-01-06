@@ -26,6 +26,40 @@ import test_config
 
 class TestAccountManagement(unittest.TestCase):
 
+    def _randuser(self):
+        chars = [chr(random.randint(ord('a'), ord('z'))) for i in xrange(10)]
+        return 'weaveunittest_' + ''.join(chars)
+
+    def testAccountManagement2(self):
+        if test_config.USERNAME:
+            return
+
+        email = 'testuser@test.com'
+        password = 'mypassword'
+        while True:
+            userID = self._randuser()
+            if not weave.checkNameAvailable(test_config.SERVER_BASE, userID,
+                                            withHost=test_config.HOST_NAME):
+                continue
+            weave.createUser(test_config.SERVER_BASE, userID, password, email,
+                             withHost=test_config.HOST_NAME)
+            break
+
+        # Change the email address
+        newEmail = 'changed@test.com'
+        weave.changeUserEmail(test_config.SERVER_BASE, userID, password,
+                              newEmail, withHost=test_config.HOST_NAME)
+
+        # With wrong password
+        try:
+            weave.changeUserEmail(test_config.SERVER_BASE, userID, "wrongPassword",
+                                  "shouldnotwork@test.com", withHost=test_config.HOST_NAME)
+            self.fail("Should have failed to change email with wrong password")
+        except weave.WeaveException:
+            pass
+
+        weave.deleteUser(test_config.SERVER_BASE, userID, password, withHost=test_config.HOST_NAME)
+
     def testAccountManagement(self):
         if test_config.USERNAME:
             # If we have a username, we're running against a production server
@@ -35,18 +69,12 @@ class TestAccountManagement(unittest.TestCase):
         email = 'testuser@test.com'
         password = 'mypassword'
         while True:
-            userID = 'weaveunittest_' + ''.join([chr(random.randint(ord('a'), ord('z'))) for i in xrange(10)])
+            userID = self._randuser()
             if not weave.checkNameAvailable(test_config.SERVER_BASE, userID, withHost=test_config.HOST_NAME):
                 continue
-
             # Create a user
-    #       weave.createUser(test_config.SERVER_BASE, userID, password, email, secret='seekrit')
-    #       weave.createUser(test_config.SERVER_BASE, userID, password, email,
-    #           captchaChallenge='027JBqJ88ZMIFz8ncEifm0HnibtyvB1VeFJPA_2m7qrC8Ihg8g5DRvjLFGEf_lfjvfQDjavWnmoPT-7z2SCJXS6H0JUJVCfM4DYB_Dcr0856L_wzqcbVJ1VId6PNfB2NXxrAnrRa9JIklZZ6Bq26UXpznwGJYJZ6GTviVbAE_EnLhb9qE2_vW9f2VxFU55l5TBsj0EDGjmPrJGlydkLr5mTy3l_ItAivyWgZdpgCWxJ4vkQYb0Q1KdLJa-qNVh_h4pN-dn7aTXxe6jKkdYWtCDQpVZjvUB',
-    #           captchaResponse='of truant')
             weave.createUser(test_config.SERVER_BASE, userID, password, email, withHost=test_config.HOST_NAME)
             break
-
 
         # NOTE that we currently have no way of testing that email address persisted correctly
 
@@ -60,14 +88,6 @@ class TestAccountManagement(unittest.TestCase):
         except weave.WeaveException:
             # if we don't have one, use the same node
             storageNode = test_config.SERVER_BASE
-
-        # With wrong password
-        # Actually, no password is required for the storage node right now
-#       try:
-#           storageNode = weave.getUserStorageNode(test_config.SERVER_BASE, userID, "wrongPassword")
-#           self.fail("Should have failed to get storage node with wrong password")
-#       except weave.WeaveException:
-#           pass
 
         # Change the email address
         newEmail = 'changed@test.com'
