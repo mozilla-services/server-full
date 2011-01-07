@@ -49,7 +49,6 @@ class TestAccountManagement(unittest.TestCase):
         newEmail = 'changed@test.com'
         weave.changeUserEmail(test_config.SERVER_BASE, userID, password,
                               newEmail, withHost=test_config.HOST_NAME)
-
         # With wrong password
         try:
             weave.changeUserEmail(test_config.SERVER_BASE, userID, "wrongPassword",
@@ -1246,6 +1245,7 @@ class TestStorage(unittest.TestCase):
         ts2 = weave.add_or_modify_item(storageServer, userID, self.password, 'tabs', {'id':'2', 'payload':'aPayload', 'parentid':'def', 'predecessorid': 'def', 'sortindex': '5'}, withHost=test_config.HOST_NAME)
         time.sleep(0.1)
         ts3 = weave.add_or_modify_item(storageServer, userID, self.password, 'tabs', {'id':'3', 'payload':'aPayload', 'parentid':'ABC', 'predecessorid': 'abc', 'sortindex': '1'}, withHost=test_config.HOST_NAME)
+        time.sleep(0.1)
         return (userID, storageServer, [ts, ts2, ts3])
 
 
