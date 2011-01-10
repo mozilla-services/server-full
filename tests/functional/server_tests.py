@@ -24,6 +24,14 @@ import weave
 # Import configuration
 import test_config
 
+
+def round_time(value, drift=.01):
+    """Rounds a timestamp to the next two digits"""
+    if not isinstance(value, float):
+        value = float(value)
+    return round(value, 2) + drift
+
+
 class TestAccountManagement(unittest.TestCase):
 
     def _randuser(self):
@@ -371,8 +379,10 @@ class TestStorage(unittest.TestCase):
         userID, storageServer = self.createCaseUser()
 
         ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
-        time.sleep(.01)
-        ts2 = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload'}, ifUnmodifiedSince=ts, withHost=test_config.HOST_NAME)
+        time.sleep(.1)
+        ts2 = weave.add_or_modify_item(storageServer, userID, self.password,
+                                       'coll', {'id':'1234', 'payload':'ThisIsThePayload'},
+                                       ifUnmodifiedSince=round_time(ts), withHost=test_config.HOST_NAME)
 
         result = weave.get_item(storageServer, userID, self.password, 'coll', '1234', withHost=test_config.HOST_NAME)
         self.failUnlessObjsEqualWithDrift(result, {'id':'1234', 'payload':'ThisIsThePayload', 'modified':float(ts2)})
@@ -383,9 +393,10 @@ class TestStorage(unittest.TestCase):
         ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
         time.sleep(0.1)
         ts2 = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
-        time.sleep(0.1)
         try:
-            ts3 = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload'}, ifUnmodifiedSince=ts, withHost=test_config.HOST_NAME)
+            ts3 = weave.add_or_modify_item(storageServer, userID, self.password, 'coll',
+                                           {'id':'1234', 'payload':'ThisIsThePayload'},
+                                           ifUnmodifiedSince=round_time(ts), withHost=test_config.HOST_NAME)
             self.fail("Attempt to add an item when the collection had changed after the ifModifiedSince time should have failed")
         except weave.WeaveException, e:
             self.failUnless(str(e).find("412") > 0, "Should have been an HTTP 412 error")
@@ -612,7 +623,8 @@ class TestStorage(unittest.TestCase):
         time.sleep(.1)
         ts2 = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'newPayload'}, withHost=test_config.HOST_NAME)
         try:
-            ts3 = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'sortindex':1}, ifUnmodifiedSince=float(ts), withHost=test_config.HOST_NAME)
+            ts3 = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'sortindex':1},
+                    ifUnmodifiedSince=round_time(ts), withHost=test_config.HOST_NAME)
             result = weave.get_item(storageServer, userID, self.password, 'coll', '1234', withHost=test_config.HOST_NAME)
             self.fail("Attempt to modify an item when the collection had changed after the ifUnmodifiedSince time should have failed: got %s" % str(result))
         except weave.WeaveException, e:
@@ -650,8 +662,11 @@ class TestStorage(unittest.TestCase):
         "testAddMultiple_IfUnmodifiedSince_NotModified: If an IfUnmodifiedSince header is provided, and the collection has not changed, an attempt succeeds."
         userID, storageServer = self.createCaseUser()
         result = weave.add_or_modify_items(storageServer, userID, self.password, 'coll', [{'id':'1234', 'payload':'ThisIsThePayload'}], withHost=test_config.HOST_NAME)
-        ts = weave.get_item(storageServer, userID, self.password, 'coll', '1234', withHost=test_config.HOST_NAME)['modified'] # TODO should use header
-        weave.add_or_modify_items(storageServer, userID, self.password, 'coll', [{'id':'1234', 'payload':'ThisIsThePayload2'}], ifUnmodifiedSince=float(ts), withHost=test_config.HOST_NAME)
+        ts = weave.get_item(storageServer, userID, self.password, 'coll', '1234', withHost=test_config.HOST_NAME)['modified']         # TODO should use header
+        weave.add_or_modify_items(storageServer, userID, self.password, 'coll',
+                [{'id':'1234', 'payload':'ThisIsThePayload2'}],
+                ifUnmodifiedSince=round_time(ts),
+                withHost=test_config.HOST_NAME)
         result = weave.get_item(storageServer, userID, self.password, 'coll', '1234', withHost=test_config.HOST_NAME)
         self.failUnlessEqual(result['payload'], 'ThisIsThePayload2')
 
@@ -661,7 +676,10 @@ class TestStorage(unittest.TestCase):
         ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
         ts2 = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload2'}, withHost=test_config.HOST_NAME)
         try:
-            ts3 = weave.add_or_modify_items(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload'}, ifUnmodifiedSince=float(ts), withHost=test_config.HOST_NAME)
+            ts3 = weave.add_or_modify_items(storageServer, userID, self.password, 'coll',
+                    {'id':'1234', 'payload':'ThisIsThePayload'},
+                     ifUnmodifiedSince=round_time(ts),
+                      withHost=test_config.HOST_NAME)
             self.fail("Attempt to add an item when the collection had changed after the ifUnmodifiedSince time should have failed")
         except weave.WeaveException, e:
             self.failUnless(str(e).find("412") > 0, "Should have been an HTTP 412 error")
@@ -1107,7 +1125,8 @@ class TestStorage(unittest.TestCase):
         userID, storageServer = self.createCaseUser()
         ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
         ts2 = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload2'}, withHost=test_config.HOST_NAME)
-        result = weave.delete_item(storageServer, userID, self.password, 'coll', '1234', ifUnmodifiedSince=ts2, withHost=test_config.HOST_NAME)
+        result = weave.delete_item(storageServer, userID, self.password, 'coll', '1234',
+                ifUnmodifiedSince=round_time(ts2), withHost=test_config.HOST_NAME)
         try:
             weave.get_item(storageServer, userID, self.password, 'coll', '1234', withHost=test_config.HOST_NAME)
             self.fail("Should have raised a 404 exception on attempt to access deleted object")
@@ -1124,7 +1143,8 @@ class TestStorage(unittest.TestCase):
         ts2 = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload2'}, withHost=test_config.HOST_NAME)
         time.sleep(0.1)
         try:
-            result = weave.delete_item(storageServer, userID, self.password, 'coll', '1234', ifUnmodifiedSince=ts, withHost=test_config.HOST_NAME)
+            result = weave.delete_item(storageServer, userID, self.password, 'coll', '1234',
+                    ifUnmodifiedSince=round_time(ts), withHost=test_config.HOST_NAME)
             self.fail("Attempt to delete an item that hasn't modified, with an ifModifiedSince header, should have failed")
         except weave.WeaveException, e:
             self.failUnless(str(e).find("412 Precondition Failed") > 0, "Should have been an HTTP 412 error")
@@ -1143,7 +1163,9 @@ class TestStorage(unittest.TestCase):
 
         ts = weave.add_or_modify_item(storageServer, userID, self.password, 'tabs', {'id':'1234', 'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
         time.sleep(0.2)
-        ts2 = weave.add_or_modify_item(storageServer, userID, self.password, 'tabs', {'id':'1234', 'payload':'ThisIsThePayload'}, ifUnmodifiedSince=ts, withHost=test_config.HOST_NAME)
+        ts2 = weave.add_or_modify_item(storageServer, userID, self.password, 'tabs',
+                {'id':'1234', 'payload':'ThisIsThePayload'},
+                ifUnmodifiedSince=round_time(ts), withHost=test_config.HOST_NAME)
 
         result = weave.get_item(storageServer, userID, self.password, 'tabs', '1234', withHost=test_config.HOST_NAME)
         self.failUnlessObjsEqualWithDrift(result, {'id':'1234', 'payload':'ThisIsThePayload', 'modified':float(ts2)})
@@ -1156,7 +1178,9 @@ class TestStorage(unittest.TestCase):
         ts2 = weave.add_or_modify_item(storageServer, userID, self.password, 'tabs', {'id':'1234', 'payload':'ThisIsThePayload2'}, withHost=test_config.HOST_NAME)
         time.sleep(0.1)
         try:
-            ts3 = weave.add_or_modify_item(storageServer, userID, self.password, 'tabs', {'id':'1234', 'payload':'ThisIsThePayload'}, ifUnmodifiedSince=ts, withHost=test_config.HOST_NAME)
+            ts3 = weave.add_or_modify_item(storageServer, userID, self.password,
+                    'tabs', {'id':'1234', 'payload':'ThisIsThePayload'},
+                    ifUnmodifiedSince=round_time(ts), withHost=test_config.HOST_NAME)
             self.fail("Attempt to add an item when the collection had changed after the ifModifiedSince time should have failed")
         except weave.WeaveException, e:
             self.failUnless(str(e).find("412 Precondition Failed") > 0, "Should have been an HTTP 412 error")
@@ -1328,7 +1352,8 @@ class TestStorageLarge(unittest.TestCase):
         self.failUnlessEqual(['2'], result)
 
         try:
-            result = weave.add_or_modify_item(self.storageServer, self.userID, self.password, 'foo', item1, ifUnmodifiedSince=float(timestamp2)-1, withHost=test_config.HOST_NAME)
+            result = weave.add_or_modify_item(self.storageServer, self.userID, self.password, 'foo', item1,
+                    ifUnmodifiedSince=round_time(timestamp2, -1.), withHost=test_config.HOST_NAME)
             self.fail("Should have failed on too-old timestamp")
         except weave.WeaveException, e:
             pass
