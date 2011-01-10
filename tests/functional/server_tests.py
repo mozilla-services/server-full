@@ -887,14 +887,19 @@ class TestStorage(unittest.TestCase):
     def testGet_ByNewer(self):
         "testGet_ByNewer: Attempt to get objects with a Newer filter works"
         userID, storageServer, ts = self.helper_testGet()
-        result = weave.get_collection_ids(storageServer, userID, self.password, 'coll', params="newer=%s" % ts[0], withHost=test_config.HOST_NAME)
+        result = weave.get_collection_ids(storageServer, userID, self.password, 'coll',
+                                          params="newer=%s" % round_time(ts[0]),
+                                          withHost=test_config.HOST_NAME)
         result.sort()
         self.failUnlessEqual(['2', '3'], result)
 
     def testGet_ByOlder(self):
         "testGet_ByOlder: Attempt to get objects with a Older filter works"
         userID, storageServer, ts = self.helper_testGet()
-        result = weave.get_collection_ids(storageServer, userID, self.password, 'coll', params="older=%s" % ts[2], withHost=test_config.HOST_NAME)
+        result = weave.get_collection_ids(storageServer, userID, self.password, 'coll',
+                                          params="older=%s" % round_time(ts[2],
+                                              -.01),
+                                          withHost=test_config.HOST_NAME)
         result.sort()
         self.failUnlessEqual(['1', '2'], result)
 
@@ -1084,14 +1089,16 @@ class TestStorage(unittest.TestCase):
     def testDelete_ByNewer(self):
         "testDelete_ByNewer: Attempt to delete objects with a Newer filter works"
         userID, storageServer, ts = self.helper_testDelete()
-        result = weave.delete_items(storageServer, userID, self.password, 'coll', params="newer=%s" % ts[0], withHost=test_config.HOST_NAME)
+        result = weave.delete_items(storageServer, userID, self.password, 'coll',
+                params="newer=%s" % round_time(ts[0]), withHost=test_config.HOST_NAME)
         result = weave.get_collection_ids(storageServer, userID, self.password, 'coll', withHost=test_config.HOST_NAME)
         self.failUnlessEqual(['1'], result)
 
     def testDelete_ByOlder(self):
         "testDelete_ByOlder: Attempt to delete objects with a Older filter works"
         userID, storageServer, ts = self.helper_testDelete()
-        result = weave.delete_items(storageServer, userID, self.password, 'coll', params="older=%s" % ts[2], withHost=test_config.HOST_NAME)
+        result = weave.delete_items(storageServer, userID, self.password, 'coll',
+                params="older=%s" % round_time(ts[2], -.01), withHost=test_config.HOST_NAME)
         result = weave.get_collection_ids(storageServer, userID, self.password, 'coll', withHost=test_config.HOST_NAME)
         self.failUnlessEqual(['3'], result)
 
@@ -1235,7 +1242,8 @@ class TestStorage(unittest.TestCase):
     def testGetTab_ByNewer(self):
         "testGetTab_ByNewer: Attempt to get tabs with a Newer filter works"
         userID, storageServer, ts = self.helper_tabTestGet()
-        result = weave.get_collection_ids(storageServer, userID, self.password, 'tabs', params="newer=%s" % ts[0], withHost=test_config.HOST_NAME)
+        result = weave.get_collection_ids(storageServer, userID, self.password, 'tabs',
+                params="newer=%s" % round_time(ts[0]), withHost=test_config.HOST_NAME)
 
         # Should be ['2', '3'] in any order
         self.failUnlessEqual(2, len(result))
@@ -1245,7 +1253,8 @@ class TestStorage(unittest.TestCase):
     def testGetTab_ByOlder(self):
         "testGetTab_ByOlder: Attempt to get tabs with a Older filter works"
         userID, storageServer, ts = self.helper_tabTestGet()
-        result = weave.get_collection_ids(storageServer, userID, self.password, 'tabs', params="older=%s" % ts[2], withHost=test_config.HOST_NAME)
+        result = weave.get_collection_ids(storageServer, userID, self.password, 'tabs',
+                params="older=%s" % round_time(ts[2], -.01), withHost=test_config.HOST_NAME)
         # Should be ['1', '2'] in any order
         self.failUnlessEqual(2, len(result))
         self.failUnless('1' in result)
@@ -1297,14 +1306,16 @@ class TestStorage(unittest.TestCase):
     def testDeleteTab_ByNewer(self):
         "testDeleteTab_ByNewer: Attempt to delete tabs with a Newer filter works"
         userID, storageServer, ts = self.helper_testDeleteTab()
-        result = weave.delete_items(storageServer, userID, self.password, 'tabs', params="newer=%s" % ts[0], withHost=test_config.HOST_NAME)
+        result = weave.delete_items(storageServer, userID, self.password,
+                'tabs', params="newer=%s" % round_time(ts[0]), withHost=test_config.HOST_NAME)
         result = weave.get_collection_ids(storageServer, userID, self.password, 'tabs', withHost=test_config.HOST_NAME)
         self.failUnlessEqual(['1'], result)
 
     def testDeleteTab_ByOlder(self):
         "testDeleteTab_ByOlder: Attempt to delete tabs with a Older filter works"
         userID, storageServer, ts = self.helper_testDeleteTab()
-        result = weave.delete_items(storageServer, userID, self.password, 'tabs', params="older=%s" % ts[2], withHost=test_config.HOST_NAME)
+        result = weave.delete_items(storageServer, userID, self.password,
+                'tabs', params="older=%s" % round_time(ts[2], -.01), withHost=test_config.HOST_NAME)
         result = weave.get_collection_ids(storageServer, userID, self.password, 'tabs', withHost=test_config.HOST_NAME)
         self.failUnlessEqual(['3'], result)
 
