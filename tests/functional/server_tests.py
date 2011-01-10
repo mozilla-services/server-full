@@ -16,6 +16,7 @@ import unittest
 import time
 import struct
 import json
+import string
 from base64 import b64encode
 opener = urllib2.build_opener(urllib2.HTTPHandler)
 
@@ -23,6 +24,13 @@ import weave
 
 # Import configuration
 import test_config
+
+
+_CHARS = string.ascii_letters + string.digits
+
+
+def randid(size=4, chars=_CHARS):
+    return ''.join([random.choice(chars) for i in range(size)])
 
 
 def round_time(value, drift=.01):
@@ -35,8 +43,7 @@ def round_time(value, drift=.01):
 class TestAccountManagement(unittest.TestCase):
 
     def _randuser(self):
-        chars = [chr(random.randint(ord('a'), ord('z'))) for i in xrange(10)]
-        return 'weaveunittest_' + ''.join(chars)
+        return 'weaveunittest_' + randid(size=10, chars=string.lowercase)
 
     def testAccountManagement2(self):
         if test_config.USERNAME:
@@ -279,9 +286,17 @@ class TestStorage(unittest.TestCase):
     def testAdd(self):
         "testAdd: An object can be created with all optional parameters, and everything persists correctly."
         userID, storageServer = self.createCaseUser()
-        ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'abcd1234', 'sortindex':3, 'parentid':'dearolddad', 'predecessorid':'bigbrother', 'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
-        result = weave.get_item(storageServer, userID, self.password, 'coll', 'abcd1234', withHost=test_config.HOST_NAME)
-        self.failUnlessObjsEqualWithDrift(result, {'id':'abcd1234', 'payload':'ThisIsThePayload', 'modified':float(ts), 'sortindex':3, 'parentid':'dearolddad', 'predecessorid':'bigbrother'})
+        oid = randid(8)
+
+        ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll',
+                {'id': oid, 'sortindex':3, 'parentid':'dearolddad',
+                 'predecessorid':'bigbrother', 'payload':'ThisIsThePayload'},
+                withHost=test_config.HOST_NAME)
+        result = weave.get_item(storageServer, userID, self.password, 'coll',
+                                oid, withHost=test_config.HOST_NAME)
+        self.failUnlessObjsEqualWithDrift(result, {'id': oid,
+                'payload':'ThisIsThePayload', 'modified':float(ts),
+                'sortindex':3, 'parentid':'dearolddad', 'predecessorid':'bigbrother'})
 
     def testAdd_IDFromURL(self):
         "testAdd_IDFromURL: An object can be created with an ID from the URL, with no ID in the provided payload"
@@ -377,25 +392,40 @@ class TestStorage(unittest.TestCase):
     def testAdd_IfUnmodifiedSince_NotModified(self):
         "testAdd_IfUnmodifiedSince_NotModified: If an IfUnmodifiedSince header is provided, and the collection has not been changed, an attempt succeeds."
         userID, storageServer = self.createCaseUser()
+        oid = randid()
 
-        ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
+        ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll',
+                {'id': oid, 'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
         time.sleep(.1)
         ts2 = weave.add_or_modify_item(storageServer, userID, self.password,
-                                       'coll', {'id':'1234', 'payload':'ThisIsThePayload'},
+                                       'coll', {'id': oid,
+                                                'payload':'ThisIsThePayload'},
                                        ifUnmodifiedSince=round_time(ts), withHost=test_config.HOST_NAME)
 
-        result = weave.get_item(storageServer, userID, self.password, 'coll', '1234', withHost=test_config.HOST_NAME)
-        self.failUnlessObjsEqualWithDrift(result, {'id':'1234', 'payload':'ThisIsThePayload', 'modified':float(ts2)})
+        result = weave.get_item(storageServer, userID, self.password, 'coll',
+                                oid, withHost=test_config.HOST_NAME)
+        self.failUnlessObjsEqualWithDrift(result,
+                                          {'id': oid,
+                                           'payload': 'ThisIsThePayload',
+                                           'modified': float(ts2)})
 
     def testAdd_IfUnmodifiedSince_Modified(self):
         "testAdd_IfUnmodifiedSince_Modified: If an IfUnmodifiedSince header is provided, and the collection has changed, the attempt fails."
         userID, storageServer = self.createCaseUser()
-        ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
+        oid = randid()
+        ts = weave.add_or_modify_item(storageServer, userID, self.password,
+                                      'coll',
+                                      {'id': oid,
+                                       'payload':'ThisIsThePayload'},
+                                      withHost=test_config.HOST_NAME)
         time.sleep(0.1)
-        ts2 = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
+        ts2 = weave.add_or_modify_item(storageServer, userID, self.password,
+                                       'coll', {'id': oid,
+                                                'payload': 'ThisIsThePayload'},
+                                       withHost=test_config.HOST_NAME)
         try:
             ts3 = weave.add_or_modify_item(storageServer, userID, self.password, 'coll',
-                                           {'id':'1234', 'payload':'ThisIsThePayload'},
+                                           {'id': oid, 'payload':'ThisIsThePayload'},
                                            ifUnmodifiedSince=round_time(ts), withHost=test_config.HOST_NAME)
             self.fail("Attempt to add an item when the collection had changed after the ifModifiedSince time should have failed")
         except weave.WeaveException, e:
@@ -415,15 +445,24 @@ class TestStorage(unittest.TestCase):
         "testAdd_EmptyPayload: Attempts to create an object with a zero-length payload work correctly."
         # Empty payload is fine
         userID, storageServer = self.createCaseUser()
-        ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'abcd1234', 'payload':''}, withHost=test_config.HOST_NAME)
-        result = weave.get_item(storageServer, userID, self.password, 'coll', 'abcd1234', withHost=test_config.HOST_NAME)
-        self.failUnlessObjsEqualWithDrift(result, {'id':'abcd1234', 'payload':'', 'modified':float(ts)})
+        oid = randid(8)
+        ts = weave.add_or_modify_item(storageServer, userID, self.password,
+                                      'coll',
+                                      {'id': oid, 'payload': ''},
+                                      withHost=test_config.HOST_NAME)
+
+        result = weave.get_item(storageServer, userID, self.password, 'coll',
+                                oid, withHost=test_config.HOST_NAME)
+        self.failUnlessObjsEqualWithDrift(result,
+                                          {'id': oid, 'payload': '',
+                                           'modified':float(ts)})
 
     def testAdd_EmptyCollection(self):
         "testAdd_EmptyCollection: Attempts to create an object without a collection report an error"
         userID, storageServer = self.createCaseUser()
         try:
-            ts = weave.add_or_modify_item(storageServer, userID, self.password, '', {'id':'1234','payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
+            ts = weave.add_or_modify_item(storageServer, userID, self.password, '',
+                    {'id': randid(),'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
             self.fail("Should have reported error with zero-length collection")
         except weave.WeaveException, e:
             self.failUnless(str(e).find("404") > 0, "Should have been an HTTP 404 error")
@@ -1138,13 +1177,21 @@ class TestStorage(unittest.TestCase):
     def testDelete_IfUnmodifiedSince_Modified(self):
         "testDelete_IfUnmodifiedSince_Modified: If an IfUnmodifiedSince header is provided, and the collection has changed, the attempt fails."
         userID, storageServer = self.createCaseUser()
-        ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload'}, withHost=test_config.HOST_NAME)
+        oid = randid()
+
+        ts = weave.add_or_modify_item(storageServer, userID, self.password,
+                                      'coll', {'id': oid,
+                                               'payload':'ThisIsThePayload'},
+                                      withHost=test_config.HOST_NAME)
         time.sleep(0.1)
-        ts2 = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1234', 'payload':'ThisIsThePayload2'}, withHost=test_config.HOST_NAME)
-        time.sleep(0.1)
+        ts2 = weave.add_or_modify_item(storageServer, userID, self.password,
+                                       'coll', {'id': oid,
+                                                'payload':'ThisIsThePayload2'},
+                                       withHost=test_config.HOST_NAME)
         try:
-            result = weave.delete_item(storageServer, userID, self.password, 'coll', '1234',
-                    ifUnmodifiedSince=round_time(ts), withHost=test_config.HOST_NAME)
+            result = weave.delete_item(storageServer, userID, self.password,
+                                       'coll', oid, ifUnmodifiedSince=round_time(ts),
+                                       withHost=test_config.HOST_NAME)
             self.fail("Attempt to delete an item that hasn't modified, with an ifModifiedSince header, should have failed")
         except weave.WeaveException, e:
             self.failUnless(str(e).find("412 Precondition Failed") > 0, "Should have been an HTTP 412 error")
