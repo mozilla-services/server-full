@@ -42,8 +42,65 @@ def round_time(value, drift=.01):
 
 class TestAccountManagement(unittest.TestCase):
 
+
+    def setUp(self):
+        self.users = []
+
+    def tearDown(self):
+        failures = []
+        for user_id, password in self.users:
+            try:
+                weave.deleteUser(test_config.SERVER_BASE, user_id, password,
+                                 withHost=test_config.HOST_NAME)
+            except weave.WeaveException, e:
+                failures.append(user_id)
+        if len(failures) > 0:
+            raise weave.WeaveException('Could not delete those users: %s' % \
+                                 ', '.join(failures))
+
     def _randuser(self):
         return 'weaveunittest_' + randid(size=10, chars=string.lowercase)
+
+    def testPasswordReset(self):
+        root_url = '%s/user/1.0/' % test_config.SERVER_BASE
+
+        # unknown user
+        req = urllib2.Request("%s/xxx/password_reset" % root_url)
+        try:
+            f = opener.open(req)
+            f.read()
+        except urllib2.HTTPError, e:
+            self.assertEqual(e.read(), '3')
+        else:
+            raise AssertionError()
+
+        # right user, no captcha
+        userID = self._create_user()
+        req = urllib2.Request("%s/%s/password_reset" % (root_url, userID))
+        try:
+            f = opener.open(req)
+            result = f.read()
+        except urllib2.HTTPError, e:
+            self.assertEqual(e.read(), '12')
+        else:
+            # seems that the server is not enabled for captcha
+            self.assertEqual(result, 'success')
+
+        # XXX Need to test with captcha
+
+    def _create_user(self, email='testuser@test.com',
+                     password='testuser@test.com'):
+        user_id = None
+        while True:
+            user_id = self._randuser()
+            if not weave.checkNameAvailable(test_config.SERVER_BASE, user_id,
+                                            withHost=test_config.HOST_NAME):
+                continue
+            weave.createUser(test_config.SERVER_BASE, user_id, password, email,
+                             withHost=test_config.HOST_NAME)
+            break
+        self.users.append((user_id, password))
+        return user_id
 
     def testAccountManagement2(self):
         if test_config.USERNAME:
@@ -51,14 +108,7 @@ class TestAccountManagement(unittest.TestCase):
 
         email = 'testuser@test.com'
         password = 'mypassword'
-        while True:
-            userID = self._randuser()
-            if not weave.checkNameAvailable(test_config.SERVER_BASE, userID,
-                                            withHost=test_config.HOST_NAME):
-                continue
-            weave.createUser(test_config.SERVER_BASE, userID, password, email,
-                             withHost=test_config.HOST_NAME)
-            break
+        userID = self._create_user(email, password)
 
         # Change the email address
         newEmail = 'changed@test.com'
@@ -71,8 +121,6 @@ class TestAccountManagement(unittest.TestCase):
             self.fail("Should have failed to change email with wrong password")
         except weave.WeaveException:
             pass
-
-        weave.deleteUser(test_config.SERVER_BASE, userID, password, withHost=test_config.HOST_NAME)
 
     def testAccountManagement(self):
         if test_config.USERNAME:
@@ -1488,4 +1536,3 @@ class TestStorageLarge(unittest.TestCase):
         result = f.read()
         # this should be allowed and return an empty body
         self.failUnlessEqual("", result)
-
