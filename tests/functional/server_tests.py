@@ -64,8 +64,13 @@ class TestAccountManagement(unittest.TestCase):
     def testPasswordReset(self):
         root_url = '%s/user/1.0/' % test_config.SERVER_BASE
 
+        user_id = self._randuser()
+        while not weave.checkNameAvailable(test_config.SERVER_BASE, user_id,
+                                           withHost=test_config.HOST_NAME):
+           user_id = self._randuser()
+
         # unknown user
-        req = urllib2.Request("%s/xxx/password_reset" % root_url)
+        req = urllib2.Request("%s/%s/password_reset" % (root_url, user_id))
         try:
             f = opener.open(req)
             f.read()
@@ -74,9 +79,9 @@ class TestAccountManagement(unittest.TestCase):
         else:
             raise AssertionError()
 
-        # right user, no captcha
-        userID = self._create_user()
-        req = urllib2.Request("%s/%s/password_reset" % (root_url, userID))
+        # existing user, no captcha
+        user_id = self._create_user()
+        req = urllib2.Request("%s/%s/password_reset" % (root_url, user_id))
         try:
             f = opener.open(req)
             result = f.read()
