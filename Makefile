@@ -33,6 +33,7 @@ build_extras:
 	$(EZ) pypi2rpm
 	$(EZ) WebTest
 	$(EZ) PasteDeploy
+	$(EZ) wsgi_intercept
 
 memcachedtest:
 	WEAVE_TESTFILE=memcached $(NOSE) $(TESTS)
