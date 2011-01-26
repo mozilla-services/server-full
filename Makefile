@@ -21,8 +21,6 @@ build:
 	rm -rf lib64 bin lib include
 	$(VIRTUALENV) --no-site-packages --distribute .
 	$(PYTHON) build.py
-
-build_extras:
 	$(EZ) nose
 	$(EZ) coverage
 	$(EZ) flake8

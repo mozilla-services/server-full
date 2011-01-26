@@ -13,7 +13,6 @@ It requires a few tools::
 Next, call make build to pull dependencies and set up a build environment::
 
     $ make build
-    $ make build_extras
 
 To check that the environment works, make test should not fail::
 
