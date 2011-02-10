@@ -1,3 +1,5 @@
+APPNAME = server-full
+DEPS = server-core,server-reg,server-storage 
 VIRTUALENV = virtualenv
 PYTHON = bin/python
 EZ = bin/easy_install
@@ -20,7 +22,7 @@ all:	build
 build:
 	rm -rf lib64 bin lib include
 	$(VIRTUALENV) --no-site-packages --distribute .
-	$(PYTHON) build.py
+	$(PYTHON) build.py $(APPNAME) $(DEPS)
 	$(EZ) nose
 	$(EZ) coverage
 	$(EZ) flake8

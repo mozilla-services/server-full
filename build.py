@@ -33,43 +33,68 @@
 # the terms of any one of the MPL, the GPL or the LGPL.
 #
 # ***** END LICENSE BLOCK *****
+"""
+Bootstrap file -- will try to make sure _build.py is up-to-date, then run it.
+"""
 import os
 import sys
+import urllib2
 
-CURDIR = os.path.dirname(__file__)
-REPO_ROOT = 'https://hg.mozilla.org/services/'
 
-def build_deps():
-    """Will make sure dependencies are up-to-date"""
-    location = os.getcwd()
+def _rename(path):
+    if not os.path.exists(path):
+        return
+
+    root = 0
+    newname = path + '.bak.%d' % root
+    while os.path.exists(newname):
+        root += 1
+        newname = path + '.bak.%d' % root
+    os.rename(path, newname)
+
+
+def main():
+    # getting the file age
+    if os.path.exists('._build.etag'):
+        with open('._build.etag') as f:
+            current_etag = f.read().strip()
+        headers = {'If-None-Match': current_etag}
+    else:
+        headers = {}
+        current_etag = None
+
+    request = urllib2.Request('http://moz.ziade.org/_build.py',
+                              headers=headers)
+
+    # checking the last version on our server
     try:
-        python = sys.executable
-        deps = os.path.abspath(os.path.join(CURDIR, 'deps'))
-        if not os.path.exists(deps):
-            os.mkdir(deps)
-        for dep in ('server-core', 'server-reg', 'server-storage'):
-            # looking for an environ with a specific tag or rev
-            rev = os.environ.get(dep.upper().replace('-', '_'))
-            if rev is not None:
-                update_cmd = 'hg up -r %s -C' % rev
-            else:
-                update_cmd = 'hg up -C'
+        url = urllib2.urlopen(request, timeout=5)
+        etag = url.headers.get('ETag')
+    except urllib2.HTTPError, e:
+        if e.getcode() != 412:
+            raise
+        # we're up-to-date (precondition failed)
+        etag = current_etag
+    except urllib2.URLError:
+        # timeout error
+        etag = None
 
-            repo = REPO_ROOT + dep
-            target = os.path.join(deps, dep)
-            if os.path.exists(target):
-                os.chdir(target)
-                os.system('hg pull')
-            else:
-                os.system('hg clone %s %s' % (repo, target))
-                os.chdir(target)
+    if etag is not None and current_etag != etag:
+        # we need to update our version
+        _rename('_build.py')
+        content = url.read()
+        with open('_build.py', 'w') as f:
+            f.write(content)
 
-            os.system(update_cmd)
-            os.system('%s setup.py develop' % python)
-    finally:
-        os.chdir(location)
-    os.system('%s setup.py develop' % python)
+        with open('._build.etag', 'w') as f:
+            f.write(etag)
+
+    # we're good, let's import the file and run it
+    mod = __import__('_build')
+    project_name = sys.argv[1]
+    deps = [dep.strip() for dep in sys.argv[2].split(',')]
+    mod.main(project_name, deps)
 
 
 if __name__ == '__main__':
-    build_deps()
+    main()
