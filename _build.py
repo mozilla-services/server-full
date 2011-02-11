@@ -77,7 +77,7 @@ def _envname(name):
 
 def _update_cmd(project, latest_tags=False):
     if latest_tags:
-        return 'hg up -r "%s" -C' % get_latest_tag()
+        return 'hg up -r "%s"' % get_latest_tag()
     else:
 
         # looking for an environ with a specific tag or rev
@@ -88,8 +88,8 @@ def _update_cmd(project, latest_tags=False):
                 print('Unknown tag or revision: %s' % rev)
                 sys.exit(1)
 
-            return 'hg up -r "%s" -C' % rev
-        return 'hg up -C'
+            return 'hg up -r "%s"' % rev
+        return 'hg up'
 
 
 def build_app(name, latest_tags, deps):
