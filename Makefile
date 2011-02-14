@@ -89,7 +89,7 @@ build_rpms:
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms paste
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms pastedeploy
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms pastescript
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms sqlalchemy
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms sqlalchemy --version=0.6.6
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms mako
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms routes
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms markupsafe
