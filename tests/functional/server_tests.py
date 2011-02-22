@@ -5,7 +5,7 @@
 # Implementations of well-known or specified protocols are contained elsewhere.
 # These tests only exercise those functions that are specific to the
 # implementation of the server.
-
+import threading
 import random
 import base64
 import logging
@@ -127,6 +127,98 @@ class TestAccountManagement(unittest.TestCase):
             self.fail("Should have failed to change email with wrong password")
         except weave.WeaveException:
             pass
+
+
+    def test_several_users(self):
+        # this will create 100 users, that will connect, change their password
+        # in parallel. This test ensures that the ldap connectors behaves as
+        # expected
+        class Worker(threading.Thread):
+            def __init__(self):
+                threading.Thread.__init__(self)
+                self.server = test_config.SERVER_BASE
+                self.host = test_config.HOST_NAME
+                self.password = 'mypassword'
+                self.email = 'test@weavetest.com'
+                self.user_id = self._create_user()
+                storage = weave.getUserStorageNode(self.server, self.user_id,
+                                                   self.password, withHost=self.host)
+                self.storage = storage.rstrip('/')
+
+            def _create_user(self):
+                while True:
+                    user_id = 'weaveunittest_' + randid(size=10,
+                                                      chars=string.lowercase)
+                    if not weave.checkNameAvailable(self.server, user_id,
+                            withHost=self.host):
+                        continue
+
+                    # create the user
+                    weave.createUser(self.server, user_id, self.password,
+                                     self.email,
+                                     withHost=self.host)
+                    break
+                return user_id
+
+            def _create_wbo(self):
+                wboid = randid(size=10, chars=string.lowercase)
+                wbo = {'id': wboid, 'payload': 'aPayload'}
+                weave.add_or_modify_item(self.storage, self.user_id,
+                                         self.password, 'coll', wbo,
+                                         withHost=self.host)
+
+            def run(self):
+                try:
+                    # creating objects
+                    for i in range(5):
+                        self._create_wbo()
+
+                    # changing the password
+                    new = 'mynewpassword'
+                    weave.changeUserPassword(self.server, self.user_id,
+                                            self.password, new,
+                                            withHost=self.host)
+
+                    # trying the old password, should fail
+                    try:
+                        weave.changeUserEmail(self.server, self.user_id,
+                                              self.password,
+                                              "shouldnotwork@test.com",
+                                              withHost=self.host)
+                    except weave.WeaveException:
+                        pass
+                    else:
+                        raise Exception('Should have raised')
+
+                    self.password = new
+
+                    # creating objects again
+                    for i in range(5):
+                        self._create_wbo()
+
+                    # deleting the account
+                    weave.deleteUser(self.server, self.user_id, self.password,
+                                    withHost=self.host)
+                    self.error = None
+
+                except Exception, error:
+                    self.error = error
+
+        workers = [Worker() for i in range(19)]
+
+        for worker in workers:
+            worker.start()
+
+        for worker in workers:
+            worker.join()
+
+        errors = [worker.error for worker in workers
+                  if worker.error is not None]
+
+        # raising the first one for now
+        if len(errors) > 0:
+            raise errors[0]
+
 
     def testAccountManagement(self):
         if test_config.USERNAME:
