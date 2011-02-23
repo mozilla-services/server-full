@@ -1,13 +1,13 @@
 APPNAME = server-full
-DEPS = server-core,server-reg,server-storage 
+DEPS = server-core,server-reg,server-storage,server-sreg
 VIRTUALENV = virtualenv
 PYTHON = bin/python
 EZ = bin/easy_install
 NOSE = bin/nosetests -s --with-xunit
 FLAKE8 = bin/flake8
 COVEROPTS = --cover-html --cover-html-dir=html --with-coverage --cover-package=syncreg,syncstorage,services
-TESTS = deps/server-core/services/tests deps/server-reg/syncreg/tests deps/server-storage/syncstorage/tests
-PKGS = deps/server-core/services deps/server-reg/syncreg deps/server-storage/syncstorage
+TESTS = deps/server-core/services/tests deps/server-reg/syncreg/tests deps/server-storage/syncstorage/tests deps/server-sreg/syncsreg
+PKGS = deps/server-core/services deps/server-reg/syncreg deps/server-storage/syncstorage deps/server-sreg/syncsreg
 COVERAGE = bin/coverage
 PYLINT = bin/pylint
 PYPI2RPM = bin/pypi2rpm.py
@@ -20,7 +20,6 @@ all:	build
 
 # XXX we could switch to zc.buildout here
 build:
-	rm -rf lib64 bin lib include
 	$(VIRTUALENV) --no-site-packages --distribute .
 	$(PYTHON) build.py $(APPNAME) $(DEPS)
 	$(EZ) nose
@@ -61,7 +60,7 @@ hudson-coverage:
 	cd deps/server-reg; hg pull; hg up -C
 	cd deps/server-storage; hg pull; hg up -C
 	rm -f coverage.xml
-	- $(COVERAGE) run --source=syncreg,syncstorage,services $(NOSE) $(TESTS); $(COVERAGE) xml
+	- $(COVERAGE) run --source=syncsreg,syncreg,syncstorage,services $(NOSE) $(TESTS); $(COVERAGE) xml
 
 lint:
 	rm -f pylint.txt
@@ -100,6 +99,7 @@ build_rpms:
 	cd deps/server-core; rm -rf build; ../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=Services.spec --dist-dir=$(CURDIR)/rpms
 	cd deps/server-storage; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncStorage.spec --binary-only --dist-dir=$(CURDIR)/rpms
 	cd deps/server-reg; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncReg.spec --dist-dir=$(CURDIR)/rpms
+	cd deps/server-sreg; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncSReg.spec --dist-dir=$(CURDIR)/rpms
 
 bench_one:
 	cd tests/loadtest; ../../bin/fl-run-test simple SimpleTest.test_simple
