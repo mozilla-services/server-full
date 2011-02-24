@@ -360,9 +360,12 @@ class TestStorage(unittest.TestCase):
                 raise ValueError("If username is provided, a password must also be provided")
             self.userID = test_config.USERNAME
             self.password = test_config.PASSWORD
+            self.storageServer =  weave.getUserStorageNode(test_config.SERVER_BASE,
+                    self.userID, self.password, withHost=test_config.HOST_NAME)
+            self.storageServer = self.storageServer.rstrip('/')
 
-            if test_config.STORAGE_SCHEME and test_config.STORAGE_SERVER:
-                self.storageServer = "%s://%s" % (test_config.STORAGE_SCHEME, test_config.STORAGE_SERVER)
+            #if test_config.STORAGE_SCHEME and test_config.STORAGE_SERVER:
+            #    self.storageServer = "%s://%s" % (test_config.STORAGE_SCHEME, test_config.STORAGE_SERVER)
 
             weave.delete_all(self.storageServer, self.userID, self.password, withHost=test_config.HOST_NAME)
 
@@ -1504,10 +1507,12 @@ class TestStorageLarge(unittest.TestCase):
                 raise ValueError("If username is provided, a password must also be provided")
             self.userID = test_config.USERNAME
             self.password = test_config.PASSWORD
-
-            if test_config.STORAGE_SCHEME and test_config.STORAGE_SERVER:
-                self.storageServer = "%s://%s" % (test_config.STORAGE_SCHEME, test_config.STORAGE_SERVER)
-
+            storageServer = weave.getUserStorageNode(test_config.SERVER_BASE,
+                                                     self.userID, self.password,
+                                                     withHost=test_config.HOST_NAME)
+            self.storageServer = storageServer.rstrip('/')
+            #if test_config.STORAGE_SCHEME and test_config.STORAGE_SERVER:
+            #    self.storageServer = "%s://%s" % (test_config.STORAGE_SCHEME, test_config.STORAGE_SERVER)
             weave.delete_all(self.storageServer, self.userID, self.password, withHost=test_config.HOST_NAME)
 
         else:
