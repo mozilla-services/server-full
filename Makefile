@@ -84,6 +84,7 @@ build_ldap:
 build_rpms:
 	rm -rf $(CURDIR)/rpms
 	mkdir $(CURDIR)/rpms
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms cef
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms webob
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms paste
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms pastedeploy
@@ -96,6 +97,7 @@ build_rpms:
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms mysql-python
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms python-memcached
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms recaptcha-client
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms wsgiproxy
 	cd deps/server-core; rm -rf build; ../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=Services.spec --dist-dir=$(CURDIR)/rpms
 	cd deps/server-storage; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncStorage.spec --binary-only --dist-dir=$(CURDIR)/rpms
 	cd deps/server-reg; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncReg.spec --dist-dir=$(CURDIR)/rpms
