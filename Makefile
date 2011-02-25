@@ -22,18 +22,18 @@ all:	build
 build:
 	$(VIRTUALENV) --no-site-packages --distribute .
 	$(PYTHON) build.py $(APPNAME) $(DEPS)
-	$(EZ) nose
-	$(EZ) coverage
-	$(EZ) flake8
-	$(EZ) mysql-python
-	$(EZ) pylint
-	$(EZ) pygments
-	$(EZ) python-memcached
-	$(EZ) pypi2rpm
-	$(EZ) WebTest
-	$(EZ) PasteDeploy
-	$(EZ) wsgiproxy
-	$(EZ) wsgi_intercept
+	$(EZ) -U nose
+	$(EZ) -U coverage
+	$(EZ) -U flake8
+	$(EZ) -U mysql-python
+	$(EZ) -U pylint
+	$(EZ) -U pygments
+	$(EZ) -U python-memcached
+	$(EZ) -U pypi2rpm
+	$(EZ) -U WebTest
+	$(EZ) -U PasteDeploy
+	$(EZ) -U wsgiproxy
+	$(EZ) -U wsgi_intercept
 
 memcachedtest:
 	WEAVE_TESTFILE=memcached $(NOSE) $(TESTS)
