@@ -32,6 +32,7 @@ build:
 	$(EZ) pypi2rpm
 	$(EZ) WebTest
 	$(EZ) PasteDeploy
+	$(EZ) wsgiproxy
 	$(EZ) wsgi_intercept
 
 memcachedtest:
