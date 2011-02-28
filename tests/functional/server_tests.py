@@ -18,6 +18,8 @@ import struct
 import json
 import string
 from base64 import b64encode
+from decimal import Decimal
+
 opener = urllib2.build_opener(urllib2.HTTPHandler)
 
 import weave
@@ -409,7 +411,19 @@ class TestStorage(unittest.TestCase):
         if test_config.USERNAME:
             if forceNewUser:
                 self.fail("ForceNewUser isn't supported against production servers")
-            return (self.userID, self.storageServer)
+
+            try:
+                collections = weave.get_collection_timestamps(self.storageServer,
+                        self.userID, self.password, withHost=test_config.HOST_NAME)
+            except weave.WeaveException:
+                pass
+            else:
+                if len(collections):
+                    for c in collections.keys():
+                        weave.delete_items(self.storageServer, self.userID,
+                                self.password, c, withHost=test_config.HOST_NAME)
+
+            return self.userID, self.storageServer
 
         if forceNewUser or not self.reuseUser:
             while True:
@@ -906,13 +920,23 @@ class TestStorage(unittest.TestCase):
     def testCollectionCounts(self):
         "testCollectionCounts: The count of objects should be updated correctly."
         userID, storageServer = self.createCaseUser()
-        ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1', 'payload':'aPayload'}, withHost=test_config.HOST_NAME)
-        ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll2', {'id':'1', 'payload':'aPayload'}, withHost=test_config.HOST_NAME)
-        ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll3', {'id':'1', 'payload':'aPayload'}, withHost=test_config.HOST_NAME)
-        ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll4', {'id':'1', 'payload':'aPayload'}, withHost=test_config.HOST_NAME)
-        ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll3', {'id':'1', 'payload':'aNewPayload'}, withHost=test_config.HOST_NAME)
-        ts = weave.add_or_modify_item(storageServer, userID, self.password, 'coll4', {'id':'2', 'payload':'aPayload'}, withHost=test_config.HOST_NAME)
-        counts = weave.get_collection_counts(storageServer, userID, self.password, withHost=test_config.HOST_NAME)
+
+        wbo = {'id': '1', 'payload': 'aPayload'}
+        for collection in ('coll', 'coll2', 'coll3', 'coll4'):
+
+            weave.add_or_modify_item(storageServer, userID,
+                                     self.password, collection, wbo,
+                                     withHost=test_config.HOST_NAME)
+
+        wbo2 = {'id': '2', 'payload': 'aPayload'}
+        weave.add_or_modify_item(storageServer, userID,
+                                 self.password, 'coll4', wbo2,
+                                 withHost=test_config.HOST_NAME)
+
+        counts = weave.get_collection_counts(storageServer, userID,
+                                             self.password,
+                                             withHost=test_config.HOST_NAME)
+
         counts = [(k, int(v)) for k, v in counts.items()]
         counts.sort()
         self.failUnlessEqual(counts, [("coll", 1), ("coll2", 1),
@@ -922,15 +946,26 @@ class TestStorage(unittest.TestCase):
         "testCollectionTimestamps: The timestamps of objects should be returned correctly."
         userID, storageServer = self.createCaseUser()
         ts = {}
-        ts['coll'] = weave.add_or_modify_item(storageServer, userID, self.password, 'coll', {'id':'1', 'payload':'aPayload'}, withHost=test_config.HOST_NAME)
-        ts['coll2'] = weave.add_or_modify_item(storageServer, userID, self.password, 'coll2', {'id':'1', 'payload':'aPayload'}, withHost=test_config.HOST_NAME)
-        ts['coll3'] = weave.add_or_modify_item(storageServer, userID, self.password, 'coll3', {'id':'1', 'payload':'aPayload'}, withHost=test_config.HOST_NAME)
-        ts['coll4'] = weave.add_or_modify_item(storageServer, userID, self.password, 'coll4', {'id':'1', 'payload':'aPayload'}, withHost=test_config.HOST_NAME)
-        ts['coll3'] = weave.add_or_modify_item(storageServer, userID, self.password, 'coll3', {'id':'1', 'payload':'aNewPayload'}, withHost=test_config.HOST_NAME)
-        ts['coll4'] = weave.add_or_modify_item(storageServer, userID, self.password, 'coll4', {'id':'2', 'payload':'aPayload'}, withHost=test_config.HOST_NAME)
-        result = weave.get_collection_timestamps(storageServer, userID, self.password, withHost=test_config.HOST_NAME)
-        for i in result.keys():
-            self.failUnlessAlmostEqual(float(ts[i]), float(result[i]), places=1)
+        wbo1 = {'id':'1', 'payload':'aPayload'}
+        wbo2 = {'id':'2', 'payload':'aPayload'}
+
+        ts['coll'] = weave.add_or_modify_item(storageServer, userID,
+                self.password, 'coll', wbo1, withHost=test_config.HOST_NAME)
+        ts['coll2'] = weave.add_or_modify_item(storageServer, userID,
+                self.password, 'coll2', wbo1, withHost=test_config.HOST_NAME)
+        ts['coll3'] = weave.add_or_modify_item(storageServer, userID,
+                self.password, 'coll3', wbo1, withHost=test_config.HOST_NAME)
+        ts['coll4'] = weave.add_or_modify_item(storageServer, userID,
+                self.password, 'coll4', wbo1, withHost=test_config.HOST_NAME)
+        ts['coll3'] = weave.add_or_modify_item(storageServer, userID,
+                self.password, 'coll3', wbo1, withHost=test_config.HOST_NAME)
+        ts['coll4'] = weave.add_or_modify_item(storageServer, userID,
+                self.password, 'coll4', wbo2, withHost=test_config.HOST_NAME)
+        result = weave.get_collection_timestamps(storageServer, userID,
+                self.password, withHost=test_config.HOST_NAME)
+
+        for col, value in ts.items():
+            self.failUnlessAlmostEqual(Decimal(value), result[col])
 
     def testCollectionIDs(self):
         "testCollectionIDs: The IDs should be returned correctly."
@@ -958,7 +993,7 @@ class TestStorage(unittest.TestCase):
 
         lines.sort()
 
-        ts = float(result[0]['modified'])
+        ts = Decimal(result[0]['modified'])
         expected = [[('id', 'id2'), ('modified', ts), ('payload', 'aPayload'),
                      ('sortindex', 2)],
                     [('id', 'id1'), ('modified', ts), ('payload', 'aPayload'),
@@ -1435,8 +1470,10 @@ class TestStorage(unittest.TestCase):
     def testDeleteTab(self):
         "testDeleteTab: Attempt to delete tabs by ID should work"
         userID, storageServer, ts = self.helper_testDeleteTab()
-        ts = weave.delete_item(storageServer, userID, self.password, 'tabs', '1', withHost=test_config.HOST_NAME)
-        result = weave.get_collection_ids(storageServer, userID, self.password, 'tabs', withHost=test_config.HOST_NAME)
+        ts = weave.delete_item(storageServer, userID, self.password,
+                'tabs', '1', withHost=test_config.HOST_NAME)
+        result = weave.get_collection_ids(storageServer, userID,
+                self.password, 'tabs', withHost=test_config.HOST_NAME)
 
         # Should be ['2', '3'] in any order
         self.failUnlessEqual(2, len(result))
@@ -1474,11 +1511,14 @@ class TestStorage(unittest.TestCase):
     def helper_testDeleteTab(self):
         'Helper function to set up many of the testDelete functions'
         userID, storageServer = self.createCaseUser()
-        ts = weave.add_or_modify_item(storageServer, userID, self.password, 'tabs', {'id':'1', 'payload':'aPayload', 'parentid':'ABC', 'predecessorid': 'abc', 'sortindex': '3'}, withHost=test_config.HOST_NAME)
+        ts = weave.add_or_modify_item(storageServer, userID, self.password, 'tabs',
+                {'id':'1', 'payload':'aPayload', 'parentid':'ABC', 'predecessorid': 'abc', 'sortindex': '3'}, withHost=test_config.HOST_NAME)
         time.sleep(0.1)
-        ts2 = weave.add_or_modify_item(storageServer, userID, self.password, 'tabs', {'id':'2', 'payload':'aPayload', 'parentid':'def', 'predecessorid': 'def', 'sortindex': '5'}, withHost=test_config.HOST_NAME)
+        ts2 = weave.add_or_modify_item(storageServer, userID, self.password, 'tabs',
+                {'id':'2', 'payload':'aPayload', 'parentid':'def', 'predecessorid': 'def', 'sortindex': '5'}, withHost=test_config.HOST_NAME)
         time.sleep(0.1)
-        ts3 = weave.add_or_modify_item(storageServer, userID, self.password, 'tabs', {'id':'3', 'payload':'aPayload', 'parentid':'ABC', 'predecessorid': 'abc', 'sortindex': '1'}, withHost=test_config.HOST_NAME)
+        ts3 = weave.add_or_modify_item(storageServer, userID, self.password, 'tabs',
+                {'id':'3', 'payload':'aPayload', 'parentid':'ABC', 'predecessorid': 'abc', 'sortindex': '1'}, withHost=test_config.HOST_NAME)
         time.sleep(0.1)
         return (userID, storageServer, [ts, ts2, ts3])
 
@@ -1539,33 +1579,42 @@ class TestStorageLarge(unittest.TestCase):
         item4_update = '{"id": 4, "parentid": 1, "sortindex": 5}'
 
         TEST_WEAVE_QUOTA = True
-        timestamp1 = weave.add_or_modify_item(self.storageServer, self.userID, self.password, 'history', item1, withHost=test_config.HOST_NAME)
-        self.failUnless(abs(time.time() - float(timestamp1)) < 10, "Timestamp drift between client and server must be <10 sec") # no more than 10 seconds of drift
+        timestamp1 = weave.add_or_modify_item(self.storageServer, self.userID,
+                self.password, 'history', item1, withHost=test_config.HOST_NAME)
+        self.failUnless(abs(time.time() - float(timestamp1)) < 10,
+                "Timestamp drift between client and server must be <10 sec") # no more than 10 seconds of drift
 
         #if TEST_WEAVE_QUOTA:
         #   quota = weave.get_quota(test_config.SERVER_BASE, self.userID, self.password)
-        timestamp2 = weave.add_or_modify_item(self.storageServer, self.userID, self.password, 'foo', item2, withHost=test_config.HOST_NAME);
+        timestamp2 = weave.add_or_modify_item(self.storageServer, self.userID,
+                self.password, 'foo', item2, withHost=test_config.HOST_NAME)
 
-        counts = weave.get_collection_counts(self.storageServer, self.userID, self.password, withHost=test_config.HOST_NAME)
+        counts = weave.get_collection_counts(self.storageServer, self.userID,
+                self.password, withHost=test_config.HOST_NAME)
         self.assertEqual(len(counts), 2)
         self.assertEqual(int(counts['history']), 1)
         self.assertEqual(int(counts['foo']), 1)
 
-        timestamps = weave.get_collection_timestamps(self.storageServer, self.userID, self.password, withHost=test_config.HOST_NAME)
-        self.failUnlessEqual({'history':float(timestamp1), 'foo':float(timestamp2)}, timestamps)
+        timestamps = weave.get_collection_timestamps(self.storageServer, self.userID,
+                                                     self.password,
+                                                     withHost=test_config.HOST_NAME)
+        self.assertEqual(timestamps['foo'], Decimal(timestamp2))
+        self.assertEqual(timestamps['history'], Decimal(timestamp1))
 
-        result = weave.get_item(self.storageServer, self.userID, self.password, 'foo', '2', withHost=test_config.HOST_NAME)
+        result = weave.get_item(self.storageServer, self.userID, self.password,
+                'foo', '2', withHost=test_config.HOST_NAME)
         self.failUnlessEqual(result['id'], '2')
         self.failUnlessEqual(result['sortindex'], 2)
         self.failUnlessEqual(result['payload'], "abcdef123456789")
-        self.failUnlessAlmostEqual(result['modified'], float(timestamp2)) # float drift
-
-        result = weave.get_collection_ids(self.storageServer, self.userID, self.password, 'foo', withHost=test_config.HOST_NAME)
+        self.failUnlessAlmostEqual(result['modified'], Decimal(timestamp2))
+        result = weave.get_collection_ids(self.storageServer, self.userID,
+                                          self.password, 'foo',
+                                          withHost=test_config.HOST_NAME)
         self.failUnlessEqual(['2'], result)
 
         try:
             result = weave.add_or_modify_item(self.storageServer, self.userID, self.password, 'foo', item1,
-                    ifUnmodifiedSince=round_time(timestamp2, -1.), withHost=test_config.HOST_NAME)
+                    ifUnmodifiedSince=Decimal(timestamp1), withHost=test_config.HOST_NAME)
             self.fail("Should have failed on too-old timestamp")
         except weave.WeaveException, e:
             pass
@@ -1595,28 +1644,35 @@ class TestStorageLarge(unittest.TestCase):
         counts.sort()
         self.failUnlessEqual([('foo', 2), ('history', 1)], counts)
 
-        timestamp4 = weave.add_or_modify_item(self.storageServer, self.userID, self.password, 'foo', item4_update, withHost=test_config.HOST_NAME) # bump sortindex up; parentid is also updated
-        result = weave.get_item(self.storageServer, self.userID, self.password, 'foo', '4', withHost=test_config.HOST_NAME)
-        self.failUnlessAlmostEqual(result['modified'], float(timestamp4)) # float drift
+        timestamp4 = weave.add_or_modify_item(self.storageServer, self.userID, self.password,
+                'foo', item4_update, withHost=test_config.HOST_NAME) # bump sortindex up; parentid is also updated
+        result = weave.get_item(self.storageServer, self.userID, self.password, 'foo',
+                '4', withHost=test_config.HOST_NAME)
+        self.failUnlessAlmostEqual(result['modified'], Decimal(timestamp4))
         del result['modified']
-        self.failUnlessEqual({'id':'4', 'parentid':'1', 'sortindex': 5, 'payload':'567abcdef123456789'}, result)
+        self.failUnlessEqual({'id':'4', 'parentid':'1', 'sortindex': 5,
+                            'payload':'567abcdef123456789'}, result)
 
         # delete updates the timestamp, all items in "foo" should be gone but
         # one
         timestamp5 = weave.delete_items_older_than(self.storageServer, self.userID, self.password, 'foo',
                                                    float(timestamp4), withHost=test_config.HOST_NAME)
-        counts = weave.get_collection_counts(self.storageServer, self.userID, self.password, withHost=test_config.HOST_NAME)
+        counts = weave.get_collection_counts(self.storageServer, self.userID,
+                self.password, withHost=test_config.HOST_NAME)
         counts = [(k, int(v)) for k, v in counts.items()]
         counts.sort()
         self.failUnlessEqual([('foo', 1), ('history', 1)], counts)
 
-        timestamps = weave.get_collection_timestamps(self.storageServer, self.userID, self.password, withHost=test_config.HOST_NAME)
+        timestamps = weave.get_collection_timestamps(self.storageServer,
+                self.userID, self.password, withHost=test_config.HOST_NAME)
         if test_config.memcache:
-            self.failUnlessEqual({'history':float(timestamp1), 'foo':float(timestamp5)}, timestamps)
+            self.failUnlessEqual({'history': Decimal(timestamp1),
+                                  'foo': Decimal(timestamp5)}, timestamps)
         # TODO if memcache isn't on check for other behavior
 
         try:
-            result = weave.delete_all(self.storageServer, self.userID, self.password, confirm=False, withHost=test_config.HOST_NAME)
+            result = weave.delete_all(self.storageServer, self.userID,
+                    self.password, confirm=False, withHost=test_config.HOST_NAME)
             self.fail("Should have received an error for delete without confirmatation header")
         except weave.WeaveException, e:
             pass

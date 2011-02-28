@@ -9,7 +9,7 @@ import hashlib
 import logging
 import unittest
 import base64
-import json
+import simplejson as json
 
 opener = urllib2.build_opener(urllib2.HTTPHandler)
 
@@ -241,7 +241,7 @@ def storage_http_op(method, userID, password, url, payload=None, asJSON=True, if
         result = f.read()
         #print "< %s" % result
         if asJSON:
-            return json.loads(result)
+            return json.loads(result, use_decimal=True)
         else:
             return result
     except urllib2.URLError, e:
