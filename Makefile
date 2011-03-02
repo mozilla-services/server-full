@@ -35,6 +35,7 @@ build:
 	$(EZ) -U PasteDeploy
 	$(EZ) -U wsgiproxy
 	$(EZ) -U wsgi_intercept
+	$(EZ) http://ziade.org/python-ldap-2.3.12.tar.gz
 
 memcachedtest:
 	WEAVE_TESTFILE=memcached $(NOSE) $(TESTS)
