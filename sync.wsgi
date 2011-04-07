@@ -63,7 +63,7 @@ sys.path[:] = saved
 os.environ['PYTHON_EGG_CACHE'] = '/tmp/python-eggs'
 
 # setting up logging
-ini_file = os.path.join(_CURDIR, 'tests_memcachedldap.ini')
+ini_file = os.path.join(_CURDIR, 'development.ini')
 try:
     fileConfig(ini_file)
 except NoSectionError:
