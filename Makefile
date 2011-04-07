@@ -20,22 +20,20 @@ all:	build
 
 # XXX we could switch to zc.buildout here
 build:
-	rm -rf lib64
-	$(VIRTUALENV) --no-site-packages --distribute .
 	$(PYTHON) build.py $(APPNAME) $(DEPS)
 	$(EZ) -U nose
 	$(EZ) -U coverage
 	$(EZ) -U flake8
-	$(EZ) -U mysql-python
 	$(EZ) -U pylint
 	$(EZ) -U pygments
 	$(EZ) -U python-memcached
 	$(EZ) -U pypi2rpm
 	$(EZ) -U WebTest
 	$(EZ) -U PasteDeploy
-	$(EZ) -U wsgiproxy
-	$(EZ) -U wsgi_intercept
-	$(EZ) http://ziade.org/python-ldap-2.3.12.tar.gz
+	#$(EZ) -U mysql-python
+	#$(EZ) -U wsgiproxy
+	#$(EZ) -U wsgi_intercept
+	#$(EZ) http://ziade.org/python-ldap-2.3.12.tar.gz
 
 memcachedtest:
 	WEAVE_TESTFILE=memcached $(NOSE) $(TESTS)
