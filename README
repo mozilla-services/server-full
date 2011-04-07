@@ -17,25 +17,22 @@ system have them. Or install them:
 * [http://python.org/download/releases/2.6.6 Python 2.6 downloads] 
 * [http://pypi.python.org/pypi/virtualenv Virtualenv]
 
-The rest of this document makes the assumption that you are under Linux or Mac
-OS X. I'll create an installation script for Windows if there's some interest.
-
 To run the server, you will also need to have these packages installed:
 
-* make 
-* sqlite3 
-* mercurial 
-* the python-profiler package under Debian or
-Ubuntu
+* python-dev
+* make
+* mercurial
+* python-profiler (Debuntu)
+* sqlite3 (if you use SQLite -- default)
 
 
-== Installing the full server ==
+== Building the full server ==
 
 It is recommended to install the full server. Get the latest version at
 https://hg.mozilla.org/services/server-full and run this command:
 
   $ make build
- 
+
 This command will create an isolated Python environment and pull all the
 required dependencies in it. A ''bin'' directory is created and contains a
 '''paster'' command that can be used to run the server, using the built-in web
@@ -52,24 +49,49 @@ By default the server is configured to use a SQLite database for the storage
 and the user APIs. Once the server is launched, you can point your Firefox Sync
 to "http://localhost:5000" and make sure it works.
 
+=== Using MYSQL or LDAP or ... ===
 
-== Running behind Apache ==
+Instead of SQLite, you can use alternative backends:
+
+- Open-LDAP to store the users
+- A SQLAlchemy-compatible database, to store the sync data and/or the users
+
+Sync has been tested on MySQL and Postgres.
+
+In order to use a specific Database, you need to install the required
+headers, and the required Python library in the local Python environment.
+
+See http://www.sqlalchemy.org/docs/core/engines.html#supported-dbapis
+
+For example, to run everything in MySQL:
+
+1 - install libmysqlclient-dev and mysql-server
+2 - install Mysql-Python by running "bin/easy_install Mysql-Python"
+3 - change the configuration file located at etc/sync.conf
+
+For #3, see http://docs.services.mozilla.com/configuration.html#configuration-file
+
+
+== Deploying ==
 
 The built-in server is not to be used if you want to set up a production 
 server. You can use different web servers that are compatible with the 
 implementation (WSGI-based):
 
+Examples:
 - Apache + mod_wsgi
-- lighhtpd + flup + fcgi
-- Nginx + uWsgi or GUnicorn or Spawn
+- NGinx + Gunicorn
+- lighttpd + flup + fcgi
 
-Here's an example of an Apache setup:
+
+=== Running behind Apache ===
+
+Here's an example of an Apache setup that uses it:
 
   <Directory /path/to/sync>
     Order deny,allow
     Allow from all
   </Directory>
-
 
   <VirtualHost *:80>
     ServerName example.com
@@ -85,9 +107,16 @@ Here's an example of an Apache setup:
 This configuration will use the sync.wsgi file located in the project. Make 
 sure this file loads the right .ini file.
 
+=== Running behind NGinx ===
 
-== Sync Configuration File == 
+XXX
 
-TBD
+
+== More documentation, Feedback ==
+
+- Dev guide: http://docs.services.mozilla.com
+- IRC channel: #sync. See http://irc.mozilla.org/
+- Mailing list: https://mail.mozilla.org/admin/services-dev
+
 
 
