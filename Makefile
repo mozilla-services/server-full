@@ -20,6 +20,7 @@ all:	build
 
 # XXX we could switch to zc.buildout here
 build:
+	$(VIRTUALENV) --no-site-packages --distribute .
 	$(PYTHON) build.py $(APPNAME) $(DEPS)
 	$(EZ) -U nose
 	$(EZ) -U coverage
