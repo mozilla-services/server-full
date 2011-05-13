@@ -107,6 +107,69 @@ Here's an example of an Apache setup that uses it:
 This configuration will use the sync.wsgi file located in the project. Make 
 sure this file loads the right .ini file.
 
+=== Running behind lighttpd/fcgi ===
+
+Tested under Gentoo.
+
+
+1. Make sure you have the following packeages installed: 
+
+- flup
+- virtualenv
+- mercurial
+
+With gentoo use: emerge -avuDN flup virtualenv mercurial
+
+2. Unpack the server-full python version lets say under /usr/src/sync-full
+
+3. make build ; /usr/src/sync-full/bin/easy_install flup
+
+4. I had to edit the Makefile to take out the memcache dependency. YMMV.
+
+5. Edit development.ini:
+
+    [server:main]
+    use = egg:Flup#fcgi_thread
+    host = 0.0.0.0
+    port = 5000
+
+6. Edit conf/sync.ini:
+
+    [storage]
+    backend = sql
+    sqluri = sqlite:////usr/src/sync-full/weave_storage
+    standard_collections = false
+
+    [auth]
+    backend = sql
+    sqluri = sqlite:////usr/src/sync-full/weave_user
+    pool_size = 100
+    pool_recycle = 3600
+    create_tables = true
+    fallback_node = https://www.yourserver.net/yourpath/
+
+7. Edit your lighttpd.conf:
+
+    server.modules   += ( "mod_fastcgi" )
+    fastcgi.server    = (   "/yourpath" => ((
+                            "host" => "127.0.0.1",
+                            "port" => 5000,
+                    "idle-imeout" => 32,
+                    "check-local" => "disable",
+                    "disable-time" => 1,
+                    "fix-root-scriptname" => "enable"
+                    ))
+                )
+
+8. Start the Python server
+
+    /usr/src/sync-full/paster serve /usr/src/sync-full/development.ini --daemon
+
+9. Restart your lighttpd:
+
+    /etc/init.d/lighttpd restart
+
+
 === Running behind NGinx ===
 
 XXX
