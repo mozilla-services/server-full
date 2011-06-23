@@ -104,6 +104,7 @@ build_rpms:
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms pymysql
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms pymysql_sa
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms gevent
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms greenlet
 	cd deps/server-core; rm -rf build; ../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=Services.spec --dist-dir=$(CURDIR)/rpms
 	cd deps/server-storage; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncStorage.spec --binary-only --dist-dir=$(CURDIR)/rpms
 	cd deps/server-reg; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncReg.spec --dist-dir=$(CURDIR)/rpms
