@@ -113,7 +113,8 @@ class TestAccountManagement(unittest.TestCase):
                                             withHost=test_config.HOST_NAME):
                 continue
             weave.createUser(test_config.SERVER_BASE, user_id, password, email,
-                             withHost=test_config.HOST_NAME)
+                             withHost=test_config.HOST_NAME,
+                             secret=test_config.SECRET)
             break
         self.users.append((user_id, password))
         return user_id
@@ -168,7 +169,8 @@ class TestAccountManagement(unittest.TestCase):
                     # create the user
                     weave.createUser(self.server, user_id, self.password,
                                      self.email,
-                                     withHost=self.host)
+                                     withHost=self.host,
+                                     secret=test_config.SECRET)
                     break
                 return user_id
 
@@ -245,7 +247,9 @@ class TestAccountManagement(unittest.TestCase):
             if not weave.checkNameAvailable(test_config.SERVER_BASE, userID, withHost=test_config.HOST_NAME):
                 continue
             # Create a user
-            weave.createUser(test_config.SERVER_BASE, userID, password, email, withHost=test_config.HOST_NAME)
+            weave.createUser(test_config.SERVER_BASE, userID, password,
+                             email, withHost=test_config.HOST_NAME,
+                             secret=test_config.SECRET)
             break
 
         # NOTE that we currently have no way of testing that email address persisted correctly
@@ -346,7 +350,9 @@ class TestAccountManagement(unittest.TestCase):
                 pass
 
             try:
-                self.failIf(weave.createUser(test_config.SERVER_BASE, "badcharactertest" + chr(i), "ignore", "ignore", withHost=test_config.HOST_NAME),
+                self.failIf(weave.createUser(test_config.SERVER_BASE,
+                    "badcharactertest" + chr(i), "ignore", "ignore",
+                   withHost=test_config.HOST_NAME, secret=test_config.SECRET),
                     "createUser should throw error for name containing '%s' character" % chr(i))
                 self.fail("Should have failed with bad username")
             except weave.WeaveException, e:
@@ -354,7 +360,8 @@ class TestAccountManagement(unittest.TestCase):
 
         try:
             veryLongName = "VeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryVeryLongUsername"
-            weave.createUser(test_config.SERVER_BASE, veryLongName, "password", "ignore", withHost=test_config.HOST_NAME)
+            weave.createUser(test_config.SERVER_BASE, veryLongName, "password", "ignore",
+                    withHost=test_config.HOST_NAME, secret=test_config.SECRET)
             self.fail("Should have failed with bad (too long) user name")
         except:
             pass
@@ -390,7 +397,9 @@ class TestStorage(unittest.TestCase):
                     self.userID = 'weaveunittest_' + ''.join([chr(random.randint(ord('a'), ord('z'))) for i in xrange(10)])
                     if not weave.checkNameAvailable(test_config.SERVER_BASE, self.userID, withHost=test_config.HOST_NAME):
                         continue
-                    weave.createUser(test_config.SERVER_BASE, self.userID, self.password, self.email, withHost=test_config.HOST_NAME)
+                    weave.createUser(test_config.SERVER_BASE, self.userID, self.password,
+                            self.email, withHost=test_config.HOST_NAME,
+                            secret=test_config.SECRET)
                     break
                 self.storageServer = weave.getUserStorageNode(test_config.SERVER_BASE, self.userID, self.password, withHost=test_config.HOST_NAME)
                 self.storageServer = self.storageServer.rstrip('/')
@@ -440,7 +449,9 @@ class TestStorage(unittest.TestCase):
                 userID = 'weaveunittest_' + ''.join([chr(random.randint(ord('a'), ord('z'))) for i in xrange(10)])
                 if not weave.checkNameAvailable(test_config.SERVER_BASE, userID, withHost=test_config.HOST_NAME):
                     continue
-                weave.createUser(test_config.SERVER_BASE, userID, self.password, self.email, withHost=test_config.HOST_NAME)
+                weave.createUser(test_config.SERVER_BASE, userID, self.password,
+                        self.email, withHost=test_config.HOST_NAME,
+                        secret=test_config.SECRET)
                 break
 
             storageServer = weave.getUserStorageNode(test_config.SERVER_BASE, userID, self.password, withHost=test_config.HOST_NAME)
@@ -1574,7 +1585,9 @@ class TestStorageLarge(unittest.TestCase):
                 if not weave.checkNameAvailable(test_config.SERVER_BASE, self.userID, withHost=test_config.HOST_NAME):
                     print "%s not available" % self.userID
                     continue
-                weave.createUser(test_config.SERVER_BASE, self.userID, self.password, self.email, withHost=test_config.HOST_NAME)
+                weave.createUser(test_config.SERVER_BASE, self.userID, self.password,
+                                 self.email, withHost=test_config.HOST_NAME,
+                                 secret=test_config.SECRET)
                 break
             self.failIf(weave.checkNameAvailable(test_config.SERVER_BASE, self.userID, withHost=test_config.HOST_NAME))
             storageServer = weave.getUserStorageNode(test_config.SERVER_BASE, self.userID, self.password, withHost=test_config.HOST_NAME)

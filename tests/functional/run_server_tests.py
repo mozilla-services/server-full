@@ -44,6 +44,7 @@ if __name__ == '__main__':
                       help=("whether the server is running with memcache "
                             "(1 if true; 0 if not)"),
                       dest="memcache")
+    parser.add_option("--secret", help="the shared secret", dest="secret")
 
     options, args = parser.parse_args()
     if options.scheme:
@@ -56,6 +57,8 @@ if __name__ == '__main__':
         test_config.USERNAME = options.username
     if options.password:
         test_config.PASSWORD = options.password
+    if options.password:
+        test_config.SECRET = options.secret
 
     test_config.memcache = options.memcache == "1"
     test_config.SERVER_BASE = "%s://%s" % (test_config.SCHEME,

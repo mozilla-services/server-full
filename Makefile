@@ -73,7 +73,7 @@ qa:
 	$(FLAKE8) $(PKGS)
 
 oldtest:
-	$(PYTHON) tests/functional/run_server_tests.py --scheme=$(SCHEME) --server=$(SERVER) --username=$(WEAVE_USER) --password=$(WEAVE_PASSWORD)
+	$(PYTHON) tests/functional/run_server_tests.py --scheme=$(SCHEME) --server=$(SERVER) --username=$(WEAVE_USER) --password=$(WEAVE_PASSWORD) --secret=$(SECRET)
 
 build_ldap:
 	mkdir $(CURDIR)/rpms -p
