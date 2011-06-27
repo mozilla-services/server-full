@@ -37,7 +37,8 @@ def _url_error(error, url):
     raise WeaveException('\n'.join(msg))
 
 
-def createUser(serverURL, userID, password, email, secret = None, captchaChallenge = None, captchaResponse = None, withHost =None):
+def createUser(serverURL, userID, password, email, secret=None,
+               captchaChallenge=None, captchaResponse=None, withHost =None):
     if userID.find('"') >=0:
         raise ValueError("Weave userIDs may not contain the quote character")
     if email.find('"') >=0:
@@ -46,22 +47,26 @@ def createUser(serverURL, userID, password, email, secret = None, captchaChallen
         raise ValueError("Weave secret may not contain the quote character")
 
     url = serverURL + "/user/1/%s/" % userID
+    payload = {}
 
     secretStr = ""
     captchaStr = ""
-    if secret:
-        secretStr = ''', "secret":"%s"''' % secret
 
     if captchaChallenge and captchaResponse:
         if secret:
             raise WeaveException("Cannot provide both a secret and a captchaResponse to createUser")
-        captchaStr = ''', "captcha-challenge":"%s", "captcha-response":"%s"''' % (captchaChallenge, captchaResponse)
+        payload['captcha-challenge'] = captchaChallenge
+        payload['captcha-response'] = captchaResponse
 
-    payload = '''{"password":"%s", "email": "%s"%s%s}''' % (password, email, secretStr, captchaStr)
+    payload['password'] = password
+    payload['email'] = email
 
-    req = urllib2.Request(url, data=payload)
+    req = urllib2.Request(url, data=json.dumps(payload))
     if withHost:
         req.add_header("Host", withHost)
+
+    if secret:
+        req.add_header("X-Weave-Secret", secret)
 
     req.get_method = lambda: 'PUT'
     try:

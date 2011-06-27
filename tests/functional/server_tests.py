@@ -17,8 +17,9 @@ import time
 import struct
 import json
 import string
-from base64 import b64encode
+from base64 import b64encode, b32encode
 from decimal import Decimal
+from hashlib import sha1
 
 opener = urllib2.build_opener(urllib2.HTTPHandler)
 
@@ -60,6 +61,13 @@ class TestAccountManagement(unittest.TestCase):
             raise weave.WeaveException('Could not delete those users: %s' % \
                                  ', '.join(failures))
 
+
+    def _rand_uid_email(self):
+        email = ('weaveunittest_' + randid(size=10, chars=string.lowercase) +
+                '@mozilla.com')
+        hashed = sha1(email).digest()
+        return b32encode(hashed).lower(), email
+
     def _randuser(self):
         return 'weaveunittest_' + randid(size=10, chars=string.lowercase)
 
@@ -67,10 +75,10 @@ class TestAccountManagement(unittest.TestCase):
     def _testPasswordReset(self):
         root_url = '%s/user/1.0/' % test_config.SERVER_BASE
 
-        user_id = self._randuser()
+        user_id, email = self._rand_uid_email()
         while not weave.checkNameAvailable(test_config.SERVER_BASE, user_id,
                                            withHost=test_config.HOST_NAME):
-           user_id = self._randuser()
+            user_id, email = self._rand_uid_email()
 
         # unknown user
         req = urllib2.Request("%s/%s/password_reset" % (root_url, user_id))
@@ -98,9 +106,9 @@ class TestAccountManagement(unittest.TestCase):
 
     def _create_user(self, email='testuser@test.com',
                      password='testuser@test.com'):
-        user_id = None
+        user_id = email = None
         while True:
-            user_id = self._randuser()
+            user_id, email = self._rand_uid_email()
             if not weave.checkNameAvailable(test_config.SERVER_BASE, user_id,
                                             withHost=test_config.HOST_NAME):
                 continue
@@ -111,8 +119,10 @@ class TestAccountManagement(unittest.TestCase):
         return user_id
 
     def testAccountManagement2(self):
+
         if test_config.USERNAME:
             return
+
 
         email = 'testuser@test.com'
         password = 'mypassword'
@@ -206,7 +216,7 @@ class TestAccountManagement(unittest.TestCase):
                 except Exception, error:
                     self.error = error
 
-        workers = [Worker() for i in range(19)]
+        workers = [Worker() for i in range(50)]
 
         for worker in workers:
             worker.start()
@@ -228,10 +238,10 @@ class TestAccountManagement(unittest.TestCase):
             # and don't want to create new accounts.  Just return silently for now.
             return
 
-        email = 'testuser@test.com'
         password = 'mypassword'
         while True:
-            userID = self._randuser()
+            userID, email = self._rand_uid_email()
+
             if not weave.checkNameAvailable(test_config.SERVER_BASE, userID, withHost=test_config.HOST_NAME):
                 continue
             # Create a user
