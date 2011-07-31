@@ -37,6 +37,7 @@
 Application entry point.
 """
 from services.baseapp import set_app
+from services.wsgiauth import Authentication
 from syncserver.controllers import MainController
 
 # XXX alternatively we should use Paste composite feature here
@@ -53,4 +54,5 @@ urls = urls + reg_urls + storage_urls
 reg_controllers.update(storage_controllers)
 reg_controllers['main'] = MainController
 
-make_app = set_app(urls, reg_controllers, klass=StorageServerApp)
+make_app = set_app(urls, reg_controllers, klass=StorageServerApp,
+                   auth_class=Authentication)
