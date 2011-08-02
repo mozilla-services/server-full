@@ -86,25 +86,25 @@ build_ldap:
 build_rpms:
 	rm -rf $(CURDIR)/rpms
 	mkdir $(CURDIR)/rpms
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms cef
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms webob
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms paste
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms pastedeploy
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms pastescript
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms sqlalchemy --version=0.6.6
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms mako
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms routes
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms markupsafe
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms simplejson
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms mysql-python
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms python-memcached
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms recaptcha-client
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms wsgiproxy
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms pylibmc
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms cef --version=0.2
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms WebOb --version=1.0.7
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms Paste --version=1.7.5.1
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms PasteDeploy --version=1.3.4
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms PasteScript --version=1.7.3
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms SQLAlchemy --version=0.6.6
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms Mako --version=0.4.1
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms Routes --version=1.12.3
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms MarkupSafe --version=0.12
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms simplejson --version=2.1.6
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms MySQL-python --version=1.2.3
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms python-memcached --version=1.47
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms recaptcha-client --version=1.0.6
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms WSGIProxy --version=0.2.2
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms pylibmc --version=1.1.1
 	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms pymysql
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms pymysql_sa
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms gevent
-	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms greenlet
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms pymysql_sa --version=1.0
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms gevent --version=0.13.6
+	$(PYPI2RPM) --dist-dir=$(CURDIR)/rpms greenlet --version=0.3.1
 	cd deps/server-core; rm -rf build; ../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=Services.spec --dist-dir=$(CURDIR)/rpms
 	cd deps/server-storage; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncStorage.spec --binary-only --dist-dir=$(CURDIR)/rpms
 	cd deps/server-reg; rm -rf build;../../$(PYTHON) setup.py --command-packages=pypi2rpm.command bdist_rpm2 --spec-file=SyncReg.spec --dist-dir=$(CURDIR)/rpms
