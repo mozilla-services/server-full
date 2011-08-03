@@ -29,6 +29,7 @@ build:
 	$(EZ) -U pygments
 	$(EZ) -U python-memcached
 	$(EZ) -U pypi2rpm
+	$(EZ) WebOb==1.0.7
 	$(EZ) -U WebTest
 	$(EZ) -U PasteDeploy
 	#$(EZ) -U mysql-python
