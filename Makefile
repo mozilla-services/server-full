@@ -50,4 +50,4 @@ test:
 	$(NOSE) $(TESTS)
 
 build_rpms:
-	$(BUILDRPMS) -c $(CHANNEL) --dist-dir=$(CURDIR)/rpms
+	$(BUILDRPMS) -c $(CHANNEL) $(DEPS)
