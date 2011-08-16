@@ -41,6 +41,8 @@ all:	build
 build:
 	$(VIRTUALENV) --no-site-packages --distribute .
 	$(INSTALL) MoPyTools
+	$(INSTALL) Nose
+	$(INSTALL) WebTest
 	$(BUILDAPP) -c $(CHANNEL) $(PYPIOPTIONS) $(DEPS)
 
 update:
