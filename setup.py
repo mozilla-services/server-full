@@ -45,6 +45,6 @@ main = syncserver:make_app
 main = paste.script.appinstall:Installer
 """
 
-setup(name='SyncServer', version=0.1, packages=['syncserver'],
+setup(name='SyncServer', version="1.0", packages=['syncserver'],
       install_requires=install_requires, entry_points=entry_points,
       package_data={'syncserver': ['templates/*.mako']})
