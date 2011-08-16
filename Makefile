@@ -40,6 +40,7 @@ all:	build
 
 build:
 	$(VIRTUALENV) --no-site-packages --distribute .
+	$(INSTALL) MoPyTools
 	$(BUILDAPP) -c $(CHANNEL) $(PYPIOPTIONS) $(DEPS)
 
 update:
