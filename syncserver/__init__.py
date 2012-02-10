@@ -4,23 +4,22 @@
 """
 Application entry point.
 """
-from services.baseapp import set_app
-from services.wsgiauth import Authentication
-from syncserver.controllers import MainController
 
-# XXX alternatively we should use Paste composite feature here
-from syncreg.wsgiapp import urls as reg_urls, controllers as reg_controllers
-from syncstorage.wsgiapp import (StorageServerApp,
-                                 controllers as storage_controllers,
-                                 urls as storage_urls)
+from mozsvc.config import get_configurator
 
 
-urls = [('GET', '/weave-delete-account', 'main', 'delete_account_form'),
-        ('POST', '/weave-delete-account', 'main', 'do_delete_account')]
+def includeme(config):
+    # For the temporary token-server, use a URL compatible
+    # with the planned token-server scheme.  The other vepauth
+    # settings are taken from syncstorage app.
+    settings = config.registry.settings
+    settings.setdefault("who.plugin.vepauth.token_url", "/1.0/sync/2.0")
+    config.include("syncstorage")
+    config.include("syncreg")
+    config.scan("syncserver.views")
 
-urls = urls + reg_urls + storage_urls
-reg_controllers.update(storage_controllers)
-reg_controllers['main'] = MainController
 
-make_app = set_app(urls, reg_controllers, klass=StorageServerApp,
-                   auth_class=Authentication)
+def main(global_config, **settings):
+    config = get_configurator(global_config, **settings)
+    config.include(includeme)
+    return config.make_wsgi_app()
