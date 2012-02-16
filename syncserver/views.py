@@ -4,14 +4,11 @@
 
 import os
 
-from webob.response import Response
 from mako.lookup import TemplateLookup
 
-from services.util import (valid_password, text_response, html_response,
-                           extract_username)
+from services.util import (text_response, html_response, extract_username)
 
 from syncstorage.storage import get_storage
-from syncreg.util import render_mako
 
 from pyramid.security import Authenticated, Allow
 
@@ -27,6 +24,7 @@ delete_account = Service(name="delete_account", path="/weave-delete-account",
                          permission="authn")
 
 root = Service(name="root", path="/")
+
 
 @delete_account.get()
 def delete_account_form(request):
